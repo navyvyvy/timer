@@ -1,7 +1,7 @@
 {
-  "name": "Roast Timer",
-  "short_name": "Roast Timer",
-  "description": "Coffee roasting timer for preheat, milestones, alerts, and cooling.",
+  "name": "Step Timer",
+  "short_name": "Step Timer",
+  "description": "Kitchen step timer for roasting coffee, steaming dumplings, and cooking ramen.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

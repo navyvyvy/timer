@@ -6,8 +6,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#080604">
-<title>☕ Roast Timer</title>
-<link rel="manifest" href="manifest.webmanifest">
+<meta name="google-adsense-account" content="ca-pub-6996920182245498">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6996920182245498"
+     crossorigin="anonymous"></script>
+<title>Step Timer</title>
 <link rel="icon" type="image/svg+xml" href="icon.svg">
 <link rel="apple-touch-icon" href="icon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -34,15 +36,40 @@
   --green: #58c878;
   --green-bright: #7eff9d;
   --green-bg: #102716;
+  --done-bg: #102716;
+  --done-border: #7eff9d;
+  --done-text: #7eff9d;
+  --done-shadow: rgba(126,255,157,0.14);
   --dev: #b894ff;
   --dev-dim: #3d2f58;
   --focus: #ffd38a;
   --radius: 16px;
 }
+body[data-profile="mandu"] {
+  --accent: #7ee08f;
+  --accent-strong: #b5ffbf;
+  --accent-dim: #275f34;
+  --accent-bg: #102617;
+  --ink-on-accent: #061207;
+  --focus: #b5ffbf;
+}
+body[data-profile="ramen"] {
+  --accent: #ff6f47;
+  --accent-strong: #ffd1b5;
+  --accent-dim: #8d3827;
+  --accent-bg: #2a120d;
+  --ink-on-accent: #1c0804;
+  --focus: #ffd1b5;
+  --done-bg: #35120f;
+  --done-border: #ff8a63;
+  --done-text: #ffd1c1;
+  --done-shadow: rgba(255,138,99,0.18);
+}
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-button, input { font: inherit; }
+button, input, select { font: inherit; }
 button:focus-visible,
-input:focus-visible {
+input:focus-visible,
+select:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
@@ -163,14 +190,86 @@ body {
    CENTERED FULL-HEIGHT LAYOUT
 ════════════════════════════════ */
 body {
-  display: flex; align-items: center; justify-content: center;
+  display: flex; align-items: flex-start; justify-content: center;
   min-height: 100dvh;
+  padding: 12px 0;
+}
+body.timer-active { align-items: center; }
+#page-shell {
+  width: 100%; max-width: 430px;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px;
 }
 #app {
   width: 100%; max-width: 390px;
   display: flex; flex-direction: column;
   padding: max(14px, env(safe-area-inset-top)) 14px max(14px, env(safe-area-inset-bottom));
   gap: 7px;
+}
+
+/* ── APP HEADER / MODE SWITCH ── */
+#app-header {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px;
+}
+.app-title-row {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+  margin-bottom: 10px;
+}
+#app-title {
+  font-size: 17px; font-weight: 800; letter-spacing: 0;
+  color: var(--text); line-height: 1.15;
+}
+#app-subtitle {
+  color: var(--text-mid); font-size: 12px; font-weight: 600;
+  line-height: 1.4; margin-top: 2px;
+}
+.profile-chip {
+  color: var(--accent-strong); background: var(--accent-bg);
+  border: 1px solid var(--accent-dim); border-radius: 8px;
+  min-height: 28px; padding: 5px 8px;
+  font-family: 'DM Mono', monospace; font-size: 11px; white-space: nowrap;
+}
+.mode-tabs {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px;
+}
+.mode-tab {
+  min-height: 40px; border: 1px solid var(--border); border-radius: 9px;
+  background: var(--surface2); color: var(--text-mid);
+  font-size: 13px; font-weight: 800; cursor: pointer;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+}
+.mode-tab[aria-selected="true"] {
+  color: var(--ink-on-accent); background: var(--accent); border-color: var(--accent);
+}
+.mode-tab:disabled {
+  cursor: not-allowed; opacity: 0.55;
+}
+
+/* ── MONETIZATION / SITE FOOTER ── */
+.ad-slot {
+  width: calc(100% - 28px); max-width: 390px;
+  min-height: 72px; border: 1px dashed var(--border);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-dim); background: rgba(36,24,15,0.38);
+  font-size: 11px; font-weight: 700; letter-spacing: 0.6px;
+}
+.ad-slot.bottom { min-height: 90px; }
+.site-footer {
+  width: calc(100% - 28px); max-width: 390px;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  color: var(--text-dim); font-size: 12px; padding: 4px 0 10px;
+}
+.site-footer a {
+  color: var(--text-mid); text-decoration: none;
+}
+.site-footer a:focus-visible {
+  outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 4px;
+}
+body.timer-active .ad-slot,
+body.timer-active .site-footer {
+  display: none;
 }
 
 /* ── TOP SECTION — Preheat ── */
@@ -228,6 +327,161 @@ body {
 .temp-unit { color: var(--text-dim); font-size: 12px; }
 .info-chip input::-webkit-inner-spin-button,
 .info-chip input::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+/* ── PRODUCT PRESET ── */
+#preset-section {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.preset-head {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+}
+.preset-head-actions {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end;
+}
+.preset-count {
+  color: var(--text-dim); font-size: 11px; font-weight: 700; line-height: 1.35;
+  margin-top: 4px;
+}
+.preset-reset {
+  min-height: 34px; border: 1px solid var(--border); border-radius: 9px;
+  background: var(--surface2); color: var(--text-mid);
+  font-size: 12px; font-weight: 800; padding: 0 10px; cursor: pointer;
+  white-space: nowrap;
+}
+.preset-reset:active { background: var(--border); color: var(--text); }
+.preset-filter-row {
+  display: flex; flex-wrap: wrap; gap: 4px;
+}
+.preset-filter-row.tools {
+  align-items: center; justify-content: space-between;
+}
+.preset-sort-group {
+  display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
+}
+.preset-state-group {
+  display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
+}
+.preset-tools-right {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.preset-chip {
+  min-height: 20px; border: 1px solid var(--border); border-radius: 4px;
+  background: var(--surface2); color: var(--text-mid);
+  font-size: 8.5px; font-weight: 700; padding: 0 5px; cursor: pointer;
+  white-space: nowrap;
+  line-height: 1;
+}
+.preset-chip.active {
+  color: var(--ink-on-accent); background: var(--accent); border-color: var(--accent);
+}
+.preset-chip.fav-on {
+  color: var(--accent-strong); background: var(--accent-bg); border-color: var(--accent-dim);
+}
+.preset-detail {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 10px 9px;
+  display: flex; flex-direction: column; gap: 6px;
+  min-height: 0;
+}
+.preset-detail-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+#preset-name {
+  color: var(--text); font-size: 14px; font-weight: 900; line-height: 1.12;
+}
+.preset-detail-actions {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end;
+}
+.preset-detail-meta {
+  display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+}
+.preset-fav-btn {
+  min-width: 24px; height: 24px; border: 1px solid var(--border);
+  border-radius: 8px; background: var(--surface2); color: var(--text-dim);
+  font-size: 13px; font-weight: 800; cursor: pointer; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; padding: 0; line-height: 1;
+}
+.preset-fav-btn.on {
+  color: var(--accent-strong); background: var(--accent-bg); border-color: var(--accent-dim);
+}
+.preset-recipe-label {
+  color: var(--text-dim); font-size: 10px; font-weight: 800;
+  letter-spacing: 0.3px; margin-top: 2px;
+}
+#preset-guide {
+  min-height: 56px; max-height: 72px; overflow: hidden;
+  color: var(--text); font-size: 12px; font-weight: 600;
+  line-height: 1.45;
+}
+.preset-detail-badge {
+  min-height: 22px; padding: 0 7px;
+  display: inline-flex; align-items: center; gap: 4px;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--surface2);
+  color: var(--text-mid); font-size: 10px; font-weight: 800; line-height: 1;
+  white-space: nowrap;
+}
+.preset-detail-badge strong {
+  color: var(--text); font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 800;
+}
+.preset-source-link {
+  flex-shrink: 0; min-height: 24px; padding: 0 8px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--surface2);
+  color: var(--accent-strong); text-decoration: none; font-size: 10px; font-weight: 800;
+  white-space: nowrap;
+  line-height: 1;
+}
+.preset-apply {
+  min-height: 38px; border: 1px solid var(--accent-dim);
+  border-radius: 9px; background: var(--accent-bg);
+  color: var(--accent-strong); font-size: 12px; font-weight: 800;
+  padding: 0 10px; cursor: pointer; white-space: nowrap;
+}
+.preset-apply:active { background: var(--surface3); }
+.preset-apply-row {
+  display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px;
+}
+.preset-list-shell {
+  height: 168px; overflow-y: auto; overflow-x: hidden;
+  scrollbar-width: none; -ms-overflow-style: none; scrollbar-gutter: auto;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.preset-list-shell::-webkit-scrollbar {
+  width: 0; height: 0;
+}
+.preset-list {
+  display: flex; flex-direction: column; gap: 3px;
+}
+.preset-empty {
+  border: 1px dashed var(--border); border-radius: 10px; padding: 18px 12px;
+  color: var(--text-dim); font-size: 12px; line-height: 1.5; text-align: center;
+}
+.preset-empty button {
+  margin-top: 10px;
+}
+.preset-card {
+  width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 6px;
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 7px 9px; cursor: pointer; text-align: left;
+}
+.preset-card.selected {
+  border-color: var(--accent); background: var(--accent-bg);
+}
+.preset-card-label {
+  color: var(--text); font-size: 12px; font-weight: 500; line-height: 1.1;
+  min-width: 0; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.preset-card-fav {
+  flex-shrink: 0; width: 26px; height: 26px; border: none; border-radius: 8px;
+  background: transparent; color: var(--text-dim); font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; padding: 0; line-height: 1;
+}
+.preset-card-fav.on {
+  color: var(--accent-strong);
+}
 
 /* start / reset — same height as chips */
 .ph-ctrl-btn {
@@ -352,16 +606,16 @@ body {
 }
 /* ✅ SUCCESS TONE */
 .start-btn.done {
-  background: var(--green-bg);
-  border: 1.5px solid var(--green-bright);
-  color: var(--green-bright);
-  box-shadow: 0 0 20px rgba(126,255,157,0.14);
+  background: var(--done-bg);
+  border: 1.5px solid var(--done-border);
+  color: var(--done-text);
+  box-shadow: 0 0 20px var(--done-shadow);
 }
 .start-btn.restart {
-  background: var(--green-bg);
-  border: 1.5px solid var(--green-bright);
-  color: var(--green-bright);
-  box-shadow: 0 0 20px rgba(126,255,157,0.14);
+  background: var(--done-bg);
+  border: 1.5px solid var(--done-border);
+  color: var(--done-text);
+  box-shadow: 0 0 20px var(--done-shadow);
 }
 .reset-btn {
   background: var(--surface2); border: 1px solid var(--border); border-radius: 13px;
@@ -475,7 +729,9 @@ body {
 #app.roast-active {
   gap: 10px;
 }
+#app.roast-active #app-header,
 #app.roast-active #top-section,
+#app.roast-active #preset-section,
 #app.roast-active #add-milestone-btn,
 #app.roast-active #dev-btn,
 #app.roast-active #dev-panel,
@@ -551,6 +807,11 @@ body {
 @media (pointer: coarse) {
   .info-chip,
   .ph-ctrl-btn,
+  .preset-chip,
+  .preset-reset,
+  .preset-apply,
+  .preset-fav-btn,
+  .preset-card-fav,
   .adj-btn,
   #add-milestone-btn,
   .dev-trigger {
@@ -582,7 +843,7 @@ body {
 <div id="confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
   <div id="confirm-box">
     <h3 id="confirm-title">초기화하시겠어요?</h3>
-    <p>로스팅 타이머와 마일스톤이<br>모두 초기 상태로 돌아갑니다.</p>
+    <p id="confirm-desc">현재 타이머와 마일스톤이<br>기본값으로 돌아갑니다.</p>
     <div class="confirm-btns">
       <button class="confirm-cancel" onclick="closeConfirm()">취소</button>
       <button class="confirm-ok"     onclick="doReset()">초기화</button>
@@ -603,19 +864,35 @@ body {
 <!-- Extension Modal -->
 <div id="ext-modal" role="dialog" aria-modal="true" aria-labelledby="ext-title" aria-describedby="ext-sub">
   <div id="ext-content">
-    <div id="ext-title">로스팅 완료 시점</div>
-    <div id="ext-sub">더 구울 시간을 선택하거나 쿨링을 시작하세요.</div>
+    <div id="ext-title">완료 시점</div>
+    <div id="ext-sub">추가 시간을 선택하거나 마무리하세요.</div>
     <div class="ext-btns">
-      <button class="ext-btn" onclick="extendRoast(3)">3분 더 굽기</button>
-      <button class="ext-btn" onclick="extendRoast(4)">4분 더 굽기</button>
-      <button class="ext-btn" onclick="extendRoast(5)">5분 더 굽기</button>
-      <button class="ext-btn" onclick="extendRoast(6)">6분 더 굽기</button>
+      <button class="ext-btn" data-mins="3" onclick="extendRoast(3)">3분 추가</button>
+      <button class="ext-btn" data-mins="4" onclick="extendRoast(4)">4분 추가</button>
+      <button class="ext-btn" data-mins="5" onclick="extendRoast(5)">5분 추가</button>
+      <button class="ext-btn" data-mins="6" onclick="extendRoast(6)">6분 추가</button>
     </div>
-    <button id="ext-finish" onclick="finishRoast()">쿨링 시작</button>
+    <button id="ext-finish" onclick="finishRoast()">완료</button>
   </div>
 </div>
 
+<div id="page-shell">
 <div id="app">
+
+  <header id="app-header">
+    <div class="app-title-row">
+      <div>
+        <div id="app-title">로스팅 타이머</div>
+        <div id="app-subtitle">예열부터 완료까지 단계별로 확인합니다.</div>
+      </div>
+      <span class="profile-chip" id="profile-chip">ROAST</span>
+    </div>
+    <div class="mode-tabs" role="tablist" aria-label="타이머 종류">
+      <button class="mode-tab" type="button" role="tab" data-profile-tab="roast" onclick="switchProfile('roast')">☕ 로스팅</button>
+      <button class="mode-tab" type="button" role="tab" data-profile-tab="mandu" onclick="switchProfile('mandu')">🥟 만두</button>
+      <button class="mode-tab" type="button" role="tab" data-profile-tab="ramen" onclick="switchProfile('ramen')">🍜 라면</button>
+    </div>
+  </header>
 
   <!-- TOP: Preheat -->
   <div id="top-section">
@@ -650,6 +927,47 @@ body {
     </div>
   </div>
 
+  <!-- PRODUCT PRESET -->
+  <section id="preset-section" hidden>
+    <div class="preset-head">
+      <div>
+        <span class="section-label" id="preset-section-label">라면 프리셋</span>
+        <div class="preset-count" id="preset-count">-</div>
+      </div>
+      <div class="preset-head-actions">
+        <button class="preset-apply" type="button" onclick="applyCurrentPreset()">기본값 적용</button>
+        <button class="preset-reset" type="button" onclick="resetCurrentPresetFilters()">필터 초기화</button>
+      </div>
+    </div>
+
+    <div class="preset-filter-row" id="preset-kind-filters"></div>
+    <div class="preset-filter-row" id="preset-brand-filters"></div>
+    <div class="preset-filter-row tools">
+      <div class="preset-sort-group" id="preset-sort-filters"></div>
+      <div class="preset-tools-right">
+        <div class="preset-state-group" id="preset-state-filters"></div>
+        <button class="preset-chip" id="preset-favorites-toggle" type="button" onclick="toggleCurrentPresetFavoritesOnly()">★ 즐겨찾기만</button>
+      </div>
+    </div>
+
+    <div class="preset-list-shell">
+      <div class="preset-list" id="ramen-list"></div>
+    </div>
+
+    <div class="preset-detail">
+      <div class="preset-detail-head">
+        <div id="preset-name">프리셋 선택</div>
+        <div class="preset-detail-actions">
+          <a id="preset-source-link" class="preset-source-link" href="#" target="_blank" rel="noreferrer">출처 보기</a>
+          <button class="preset-fav-btn" id="preset-fav-btn" type="button" onclick="toggleSelectedCurrentPresetFavorite()" aria-label="즐겨찾기"></button>
+        </div>
+      </div>
+      <div class="preset-detail-meta" id="preset-detail-meta"></div>
+      <div class="preset-recipe-label">조리법</div>
+      <div id="preset-guide"></div>
+    </div>
+  </section>
+
   <!-- MASTER TIMER -->
   <div id="master-section">
     <div class="master-ring-wrap">
@@ -658,7 +976,7 @@ body {
         <circle id="ring-progress" cx="98" cy="98" r="86"/>
       </svg>
       <div class="master-time-inner">
-        <div id="master-countdown" aria-live="polite">총 로스팅</div>
+        <div id="master-countdown" aria-live="polite">총 시간</div>
         <div class="ring-divider"></div>
         <div id="master-time">12:00</div>
         <div id="master-status" aria-live="polite">대기 중</div>
@@ -666,7 +984,7 @@ body {
     </div>
     <div id="master-reference" aria-live="polite">총 시간 12:00</div>
     <div class="master-btn-row">
-      <button class="start-btn" id="start-btn" onclick="toggleMaster()">☕ 로스팅 시작</button>
+      <button class="start-btn" id="start-btn" onclick="toggleMaster()">타이머 시작</button>
       <button class="reset-btn" id="reset-btn" onclick="askReset()">초기화</button>
     </div>
   </div>
@@ -692,26 +1010,1216 @@ body {
 
 </div>
 
+<aside class="ad-slot bottom" aria-label="광고 영역">광고 영역</aside>
+<footer class="site-footer">
+  <a href="privacy.html">개인정보처리방침</a>
+  <span aria-hidden="true">·</span>
+  <a href="contact.html">문의</a>
+</footer>
+</div>
+
 <script>
 // ─── 상수 ────────────────────────────────────────────────────────────────────
 const ALARM_INTERVAL_MS  = 1800;
 const RING_DANGER_THRESH = 0.88;
-const RECIPE_STORAGE_KEY = 'roast-timer:recipe:v1';
+const PROFILE_STORAGE_KEY = 'step-timer:active-profile:v1';
+const RECIPE_STORAGE_PREFIX = 'step-timer:recipe:';
+const LEGACY_RECIPE_STORAGE_KEY = 'roast-timer:recipe:v1';
+const RAMEN_PRESET_STORAGE_KEY = 'step-timer:ramen-preset:v1';
 const DEFAULT_TARGET_TEMP = 220;
+
+const RAMEN_PRESETS = [
+  {
+    id: 'nongshim-shin',
+    maker: '농심',
+    name: '신라면',
+    type: '국물',
+    water: '550ml',
+    start: '끓는 물',
+    guide: '끓는 물 550ml에 면, 분말스프, 후레이크를 넣고 4분 30초 더 끓입니다.',
+    sourceLabel: '농심 공식',
+    sourceUrl: 'https://brand.nongshim.com/shinramyun/main/index',
+    steps: [
+      { name: '면 끓이기', icon: '🍜', durationSec: 270,
+        emoji: '🍜', alertMsg: '신라면 4분 30초가 지났습니다. 불을 끄고 바로 담아 주세요.',
+        actionLabel: '완료 확인' },
+    ],
+  },
+  {
+    id: 'nongshim-shin-black',
+    maker: '농심',
+    name: '신라면 블랙',
+    type: '국물',
+    water: '550ml',
+    start: '끓는 물',
+    guide: '면, 전첨양념분말, 고기야채건더기를 넣고 4분 30초 끓인 뒤 불을 끄고 후첨양념분말을 넣습니다.',
+    sourceLabel: '농심 공식',
+    sourceUrl: 'https://brand.nongshim.com/black/product/index',
+    steps: [
+      { name: '후첨분말 넣기', icon: '🥄', durationSec: 270,
+        emoji: '🥄', alertMsg: '신라면 블랙 조리 시간이 끝났습니다. 불을 끄고 후첨양념분말을 넣어 주세요.',
+        actionLabel: '후첨분말 넣기' },
+    ],
+  },
+  {
+    id: 'nongshim-neoguri',
+    maker: '농심',
+    name: '얼큰한 너구리',
+    type: '국물',
+    water: '550ml',
+    start: '끓는 물',
+    guide: '끓는 물 550ml에 면, 분말스프, 후레이크, 다시마를 넣고 5분 더 끓입니다.',
+    sourceLabel: '농심 공식',
+    sourceUrl: 'https://brand.nongshim.com/neoguri/product/index',
+    steps: [
+      { name: '면 끓이기', icon: '🍜', durationSec: 300,
+        emoji: '🍜', alertMsg: '너구리 5분 조리가 끝났습니다. 면 상태를 보고 바로 마무리하세요.',
+        actionLabel: '완료 확인' },
+    ],
+  },
+  {
+    id: 'nongshim-ansung',
+    maker: '농심',
+    name: '안성탕면',
+    type: '국물',
+    water: '550ml',
+    start: '끓는 물',
+    guide: '끓는 물 550ml에 면과 스프를 같이 넣고 4분 30초 더 끓입니다.',
+    sourceLabel: '누들푸들 포장 기준',
+    sourceUrl: 'https://www.noodlefoodle.com/review_place/show_my_recipe?groupId=3491',
+    steps: [
+      { name: '면 끓이기', icon: '🍜', durationSec: 270,
+        emoji: '🍜', alertMsg: '안성탕면 4분 30초가 지났습니다. 불을 끄고 마무리하세요.',
+        actionLabel: '완료 확인' },
+    ],
+  },
+  {
+    id: 'nongshim-chapagetti',
+    maker: '농심',
+    name: '짜파게티',
+    type: '짜장',
+    water: '600ml',
+    start: '끓는 물',
+    guide: '면과 후레이크를 5분 끓이고 물 8스푼 정도만 남긴 뒤 과립스프와 올리브조미유를 비빕니다.',
+    sourceLabel: '포장 리뷰',
+    sourceUrl: 'https://bongmi.tistory.com/114',
+    steps: [
+      { name: '물 남기고 비비기', icon: '🥢', durationSec: 300,
+        emoji: '🥢', alertMsg: '짜파게티 면 삶기가 끝났습니다. 물 8스푼만 남기고 스프와 조미유를 비벼 주세요.',
+        actionLabel: '비비기 시작' },
+    ],
+  },
+  {
+    id: 'nongshim-jjawang',
+    maker: '농심',
+    name: '짜왕',
+    type: '짜장',
+    water: '600ml',
+    start: '끓는 물',
+    guide: '면과 후레이크를 5분 끓이고 물 7~8스푼만 남긴 뒤 짜장스프와 풍미유를 비빕니다.',
+    sourceLabel: '농심 공식 블로그',
+    sourceUrl: 'https://blog.nongshim.com/1429',
+    steps: [
+      { name: '물 남기고 비비기', icon: '🥢', durationSec: 300,
+        emoji: '🥢', alertMsg: '짜왕 면 삶기가 끝났습니다. 물 7~8스푼만 남기고 짜장스프와 풍미유를 넣어 주세요.',
+        actionLabel: '비비기 시작' },
+    ],
+  },
+  {
+    id: 'nongshim-ojingeo',
+    maker: '농심',
+    name: '오징어짬뽕',
+    type: '국물',
+    water: '550ml',
+    start: '끓는 물',
+    guide: '끓는 물 550ml에 면과 스프를 넣고 4분 30초 더 끓입니다.',
+    sourceLabel: '포장 리뷰',
+    sourceUrl: 'https://kleshas-moksha.tistory.com/entry/%EB%9D%BC%EB%A9%B4-%EB%A6%AC%EB%B7%B0-%EB%86%8D%EC%8B%AC-%EC%98%A4%EC%A7%95%EC%96%B4%EC%A7%AC%EB%BD%95-%EB%A6%AC%EB%B7%B0-%EC%A7%AC%EB%BD%95%EB%A5%98-%EB%9D%BC%EB%A9%B4-%EA%B7%BC%EB%B3%B8-%EC%98%A4%EC%A7%AC-%EC%8B%9C%EC%8B%9D-%ED%9B%84%EA%B8%B0',
+    steps: [
+      { name: '면 끓이기', icon: '🦑', durationSec: 270,
+        emoji: '🦑', alertMsg: '오징어짬뽕 4분 30초가 지났습니다. 면 상태를 확인하세요.',
+        actionLabel: '완료 확인' },
+    ],
+  },
+  {
+    id: 'nongshim-sarigomtang',
+    maker: '농심',
+    name: '사리곰탕면',
+    type: '국물',
+    water: '550ml',
+    start: '끓는 물',
+    guide: '끓는 물 550ml에 면과 분말스프를 넣고 4분 끓인 뒤 후레이크를 올립니다.',
+    sourceLabel: '포장 기준',
+    sourceUrl: 'https://www.youtube.com/shorts/OdAzwR6WJvg',
+    steps: [
+      { name: '후레이크 넣기', icon: '🥄', durationSec: 240,
+        emoji: '🥄', alertMsg: '사리곰탕면 4분 조리가 끝났습니다. 불을 끄고 후레이크를 넣어 주세요.',
+        actionLabel: '후레이크 넣기' },
+    ],
+  },
+  {
+    id: 'ottogi-jin-hot',
+    maker: '오뚜기',
+    name: '진라면 매운맛',
+    type: '국물',
+    water: '500ml',
+    start: '끓는 물',
+    guide: '물 500ml와 건더기스프를 끓인 뒤 면과 분말스프를 넣고 4분 더 끓입니다.',
+    sourceLabel: '조리법 기사',
+    sourceUrl: 'https://v.daum.net/v/bVKHncCnF8?f=p',
+    steps: [
+      { name: '면 끓이기', icon: '🍜', durationSec: 240,
+        emoji: '🍜', alertMsg: '진라면 매운맛 4분 조리가 끝났습니다. 바로 담아 주세요.',
+        actionLabel: '완료 확인' },
+    ],
+  },
+  {
+    id: 'ottogi-jin-mild',
+    maker: '오뚜기',
+    name: '진라면 순한맛',
+    type: '국물',
+    water: '500ml',
+    start: '끓는 물',
+    guide: '진라면 매운맛과 같은 1봉 기준으로 물 500ml, 면 조리 4분을 기본값으로 둡니다.',
+    sourceLabel: '조리법 기사',
+    sourceUrl: 'https://v.daum.net/v/bVKHncCnF8?f=p',
+    steps: [
+      { name: '면 끓이기', icon: '🍜', durationSec: 240,
+        emoji: '🍜', alertMsg: '진라면 순한맛 4분 조리가 끝났습니다. 면 상태를 확인하세요.',
+        actionLabel: '완료 확인' },
+    ],
+  },
+  {
+    id: 'ottogi-yeul',
+    maker: '오뚜기',
+    name: '열라면',
+    type: '국물',
+    water: '500ml',
+    start: '끓는 물',
+    guide: '끓는 물 500ml에 면, 분말스프, 건더기스프를 넣고 4분 더 끓입니다.',
+    sourceLabel: '포장 기준',
+    sourceUrl: 'https://app.samsungfood.com/recipes/1012e69ce5753233ae3ce95a99e2af5f0b4f93b441b',
+    steps: [
+      { name: '면 끓이기', icon: '🔥', durationSec: 240,
+        emoji: '🔥', alertMsg: '열라면 4분 조리가 끝났습니다. 불을 끄고 마무리하세요.',
+        actionLabel: '완료 확인' },
+    ],
+  },
+  {
+    id: 'ottogi-sesame',
+    maker: '오뚜기',
+    name: '참깨라면',
+    type: '국물',
+    water: '500ml',
+    start: '끓는 물',
+    guide: '끓는 물 500ml에 면과 스프를 넣고 4분 끓인 뒤 유성스프를 넣습니다.',
+    sourceLabel: '포장 리뷰',
+    sourceUrl: 'https://skboy0314.tistory.com/11',
+    steps: [
+      { name: '유성스프 넣기', icon: '🥄', durationSec: 240,
+        emoji: '🥄', alertMsg: '참깨라면 4분 조리가 끝났습니다. 유성스프를 넣고 저어 주세요.',
+        actionLabel: '유성스프 넣기' },
+    ],
+  },
+  {
+    id: 'ottogi-jin-jjamppong',
+    maker: '오뚜기',
+    name: '진짬뽕',
+    type: '국물',
+    water: '500ml',
+    start: '끓는 물',
+    guide: '물 500ml에 건더기스프를 넣고 끓으면 액상스프와 면을 넣어 5분 끓인 뒤 유성스프로 마무리합니다.',
+    sourceLabel: '오뚜기 공식 SNS',
+    sourceUrl: 'https://www.facebook.com/otokidaily/videos/10%EC%A3%BC%EB%85%84%EC%9D%84-%EB%A7%9E%EC%9D%B4%ED%95%B4%EC%A7%84%ED%95%9C-%EB%B6%88%EB%A7%9B%EC%9C%BC%EB%A1%9C-%EC%97%85%EA%B7%B8%EB%A0%88%EC%9D%B4%EB%93%9C%EB%90%9C-%EC%A7%84%EC%A7%AC%EB%BD%95%EB%91%90%ED%88%BC-%EC%AB%84%EA%B9%83%ED%95%9C-%EB%A9%B4%EB%B0%9C%ED%91%B8%EC%A7%90%ED%95%9C-%EA%B1%B4%EB%8D%94%EA%B8%B0%EA%B7%B8%EB%A6%AC%EA%B3%A0-%EB%8D%94-%EC%A7%84%ED%95%B4%EC%A7%84-%EB%B6%88%EB%A7%9B-%EA%B0%84%EB%8B%A8-%EB%A0%88%EC%8B%9C%ED%94%BC%EB%AC%BC-500ml%EC%97%90-%EA%B1%B4%EB%8D%94%EA%B8%B0%EC%8A%A4%ED%94%84%EB%A5%BC-%EB%84%A3%EA%B3%A0/798355613212261/',
+    steps: [
+      { name: '유성스프 넣기', icon: '🥄', durationSec: 300,
+        emoji: '🥄', alertMsg: '진짬뽕 5분 조리가 끝났습니다. 불을 끄고 유성스프를 넣어 주세요.',
+        actionLabel: '유성스프 넣기' },
+    ],
+  },
+  {
+    id: 'ottogi-jin-jjajang',
+    maker: '오뚜기',
+    name: '진짜장',
+    type: '짜장',
+    water: '550ml',
+    start: '끓는 물',
+    guide: '물 550ml와 건더기스프를 끓인 뒤 면을 5분 익히고 물을 따라낸 후 액체스프를 비빕니다.',
+    sourceLabel: '포장 리뷰',
+    sourceUrl: 'https://3sus.tistory.com/31',
+    steps: [
+      { name: '물 버리고 비비기', icon: '🥢', durationSec: 300,
+        emoji: '🥢', alertMsg: '진짜장 면 삶기가 끝났습니다. 물을 따라내고 액체스프를 비벼 주세요.',
+        actionLabel: '비비기 시작' },
+    ],
+  },
+  {
+    id: 'samyang-ramen',
+    maker: '삼양',
+    name: '삼양라면',
+    type: '국물',
+    water: '500ml',
+    start: '끓는 물',
+    guide: '끓는 물 500ml에 면, 분말스프, 후레이크를 넣고 4분 더 끓입니다.',
+    sourceLabel: '물양 기준 기사',
+    sourceUrl: 'https://brunch.co.kr/@spacecomics/130',
+    steps: [
+      { name: '면 끓이기', icon: '🍜', durationSec: 240,
+        emoji: '🍜', alertMsg: '삼양라면 4분 조리가 끝났습니다. 불을 끄고 마무리하세요.',
+        actionLabel: '완료 확인' },
+    ],
+  },
+  {
+    id: 'samyang-buldak',
+    maker: '삼양',
+    name: '불닭볶음면',
+    type: '볶음',
+    water: '600ml',
+    start: '끓는 물',
+    guide: '면을 5분 삶고 물 8스푼 정도만 남긴 뒤 액상스프를 넣어 약불에 비비고 후레이크를 뿌립니다.',
+    sourceLabel: '기본 조리법 기사',
+    sourceUrl: 'https://www.harpersbazaar.co.kr/article/62328',
+    steps: [
+      { name: '물 남기고 비비기', icon: '🌶️', durationSec: 300,
+        emoji: '🌶️', alertMsg: '불닭볶음면 5분 삶기가 끝났습니다. 물 8스푼만 남기고 소스를 비벼 주세요.',
+        actionLabel: '비비기 시작' },
+    ],
+  },
+  {
+    id: 'samyang-buldak-carbonara',
+    maker: '삼양',
+    name: '까르보 불닭볶음면',
+    type: '볶음',
+    water: '600ml',
+    start: '끓는 물',
+    guide: '면을 5분 삶고 물 8스푼 정도만 남긴 뒤 액상스프와 분말스프를 골고루 비빕니다.',
+    sourceLabel: '불닭 공식/레시피',
+    sourceUrl: 'https://buldak.com/kr/product/buldak-ramen-carbonara/',
+    steps: [
+      { name: '스프 비비기', icon: '🧀', durationSec: 300,
+        emoji: '🧀', alertMsg: '까르보 불닭 5분 삶기가 끝났습니다. 물 8스푼만 남기고 소스를 비벼 주세요.',
+        actionLabel: '비비기 시작' },
+    ],
+  },
+  {
+    id: 'paldo-bibim',
+    maker: '팔도',
+    name: '팔도 비빔면',
+    type: '비빔',
+    water: '600ml 이상',
+    start: '끓는 물',
+    guide: '끓는 물에 면을 3분 삶은 뒤 찬물에 헹구고 물기를 뺀 다음 비빔스프와 비빕니다.',
+    sourceLabel: '팔도 제품/포장 기준',
+    sourceUrl: 'https://paldofood.co.kr/product/noodle/12',
+    steps: [
+      { name: '찬물에 헹구기', icon: '🧊', durationSec: 180,
+        emoji: '🧊', alertMsg: '팔도 비빔면 3분 삶기가 끝났습니다. 찬물에 헹구고 비빔스프를 넣어 주세요.',
+        actionLabel: '헹구기 시작' },
+    ],
+  },
+  {
+    id: 'paldo-teumsae',
+    maker: '팔도',
+    name: '틈새라면 빨계떡',
+    type: '국물',
+    water: '500ml',
+    start: '끓는 물',
+    guide: '끓는 물 500ml에 면과 스프를 넣고 3분 30초 더 끓입니다.',
+    sourceLabel: '팔도 제품/포장 기준',
+    sourceUrl: 'https://paldofood.co.kr/product/noodle/9',
+    steps: [
+      { name: '면 끓이기', icon: '🔥', durationSec: 210,
+        emoji: '🔥', alertMsg: '틈새라면 3분 30초 조리가 끝났습니다. 맵기와 면 상태를 확인하세요.',
+        actionLabel: '완료 확인' },
+    ],
+  },
+  {
+    id: 'paldo-kokomen',
+    maker: '팔도',
+    name: '꼬꼬면',
+    type: '국물',
+    water: '500ml',
+    start: '끓는 물',
+    guide: '끓는 물 500ml에 면, 분말스프, 건더기스프를 넣고 3분 30초 더 끓입니다.',
+    sourceLabel: '팔도 공식 SNS',
+    sourceUrl: 'https://www.instagram.com/p/DGxMqU3Bhr9/',
+    steps: [
+      { name: '면 끓이기', icon: '🍜', durationSec: 210,
+        emoji: '🍜', alertMsg: '꼬꼬면 3분 30초 조리가 끝났습니다. 바로 담아 주세요.',
+        actionLabel: '완료 확인' },
+    ],
+  },
+  {
+    id: 'nongshim-shin-nonfrying',
+    maker: '농심',
+    name: '신라면 건면',
+    type: '국물',
+    water: '500ml',
+    start: '끓는 물',
+    guide: '물 500ml를 끓인 뒤 면, 분말스프, 후레이크, 야채조미유를 넣고 4분 30초 더 끓입니다.',
+    sourceLabel: '농심 공식',
+    sourceUrl: 'https://brand.nongshim.com/shin-nonfrying/main/index',
+    steps: [
+      { name: '면 끓이기', icon: '🍜', durationSec: 270,
+        emoji: '🍜', alertMsg: '신라면 건면 4분 30초 조리가 끝났습니다. 불을 끄고 바로 담아 주세요.',
+        actionLabel: '완료 확인' },
+    ],
+  },
+  {
+    id: 'nongshim-gamjatang',
+    maker: '농심',
+    name: '감자탕면',
+    type: '국물',
+    water: '500ml',
+    start: '끓는 물',
+    guide: '물 500ml를 끓인 뒤 면, 양념분말, 후레이크를 넣고 4분 더 끓인 다음 후첨양념소스를 넣습니다.',
+    sourceLabel: '농심 공식',
+    sourceUrl: 'https://brand.nongshim.com/gamjatangmyun/main/index',
+    steps: [
+      { name: '후첨소스 넣기', icon: '🥄', durationSec: 240,
+        emoji: '🥄', alertMsg: '감자탕면 4분 조리가 끝났습니다. 후첨양념소스를 넣어 마무리해 주세요.',
+        actionLabel: '후첨소스 넣기' },
+    ],
+  },
+  {
+    id: 'nongshim-baehongdong-bibim',
+    maker: '농심',
+    name: '배홍동 비빔면',
+    type: '비빔',
+    water: '600ml',
+    start: '끓는 물',
+    guide: '끓는 물 600ml에 면을 3분 삶은 뒤 찬물에 헹궈 물기를 빼고 비빔장을 넣어 비빕니다.',
+    sourceLabel: '배홍동 조리법',
+    sourceUrl: 'https://www.instagram.com/p/DMmETFTvfKG/',
+    steps: [
+      { name: '찬물에 헹구기', icon: '🧊', durationSec: 180,
+        emoji: '🧊', alertMsg: '배홍동 비빔면 3분 조리가 끝났습니다. 찬물에 헹군 뒤 비빔장을 넣어 주세요.',
+        actionLabel: '헹구기 시작' },
+    ],
+  },
+  {
+    id: 'nongshim-baehongdong-jjoljjol',
+    maker: '농심',
+    name: '배홍동 쫄쫄면',
+    type: '비빔',
+    water: '600ml',
+    start: '끓는 물',
+    guide: '끓는 물에 면을 삶아 찬물에 헹군 뒤 비빔장을 넣어 쫄깃하게 비빕니다.',
+    sourceLabel: '배홍동 조리법',
+    sourceUrl: 'https://www.youtube.com/watch?v=3Xdv7RKR9n8',
+    steps: [
+      { name: '찬물에 헹구기', icon: '🧊', durationSec: 180,
+        emoji: '🧊', alertMsg: '배홍동 쫄쫄면 삶기가 끝났습니다. 찬물에 헹군 뒤 비빔장을 넣어 주세요.',
+        actionLabel: '헹구기 시작' },
+    ],
+  },
+  {
+    id: 'nongshim-baehongdong-kalbim',
+    maker: '농심',
+    name: '배홍동칼빔면',
+    type: '비빔',
+    water: '600ml',
+    start: '끓는 물',
+    guide: '끓는 물에 4분 30초 삶은 뒤 찬물에 헹구고 칼국수면 식감에 맞는 비빔장을 넣어 비빕니다.',
+    sourceLabel: '배홍동 레시피',
+    sourceUrl: 'https://babzip.tistory.com/entry/%EC%A7%91%EB%B0%A5-%EC%B0%B0%EB%96%A1%EA%B6%81%ED%95%A9-%EC%9C%A1%ED%9A%8C-%EB%B0%B0%ED%99%8D%EB%8F%99-%EC%B9%BC%EB%B9%94%EB%A9%B4-%EB%A7%8C%EB%93%A4%EA%B8%B0-%EB%A7%8C%EB%93%9C%EB%8A%94%EB%B2%95',
+    steps: [
+      { name: '찬물에 헹구기', icon: '🧊', durationSec: 270,
+        emoji: '🧊', alertMsg: '배홍동칼빔면 4분 30초 조리가 끝났습니다. 찬물에 헹군 뒤 비빔장을 넣어 주세요.',
+        actionLabel: '헹구기 시작' },
+    ],
+  },
+  {
+    id: 'nongshim-baehongdong-makguksu',
+    maker: '농심',
+    name: '배홍동 막국수',
+    type: '비빔',
+    water: '600ml',
+    start: '끓는 물',
+    guide: '끓는 물 600ml에 면을 4분 30초 삶은 뒤 찬물에 헹구고 비빔장을 넣습니다.',
+    sourceLabel: '배홍동 챌린지',
+    sourceUrl: 'https://www.youtube.com/shorts/IwTnYmJrciU',
+    steps: [
+      { name: '찬물에 헹구기', icon: '🧊', durationSec: 270,
+        emoji: '🧊', alertMsg: '배홍동 막국수 4분 30초 조리가 끝났습니다. 찬물에 헹군 뒤 비빔장을 넣어 주세요.',
+        actionLabel: '헹구기 시작' },
+    ],
+  },
+  {
+    id: 'nongshim-mupama',
+    maker: '농심',
+    name: '무파마탕면',
+    type: '국물',
+    water: '550ml',
+    start: '끓는 물',
+    guide: '물 550ml에 면, 육수분말, 후레이크를 넣고 4분 30초 끓인 뒤 후첨분말을 넣습니다.',
+    sourceLabel: '포장 리뷰',
+    sourceUrl: 'https://jeonggyun.tistory.com/151',
+    steps: [
+      { name: '후첨분말 넣기', icon: '🥄', durationSec: 270,
+        emoji: '🥄', alertMsg: '무파마탕면 4분 30초 조리가 끝났습니다. 후첨분말을 넣어 주세요.',
+        actionLabel: '후첨분말 넣기' },
+    ],
+  },
+  {
+    id: 'nongshim-myeolchi-kalguksu',
+    maker: '농심',
+    name: '멸치칼국수',
+    type: '국물',
+    water: '550ml',
+    start: '끓는 물',
+    guide: '물 550ml에 면과 분말스프를 넣고 4분 30초 더 끓입니다.',
+    sourceLabel: '농심몰 레시피',
+    sourceUrl: 'https://nongshimmall.com/article/%EB%A0%88%EC%8B%9C%ED%94%BC/3001/573/',
+    steps: [
+      { name: '면 끓이기', icon: '🍜', durationSec: 270,
+        emoji: '🍜', alertMsg: '멸치칼국수 4분 30초 조리가 끝났습니다. 바로 담아 주세요.',
+        actionLabel: '완료 확인' },
+    ],
+  },
+  {
+    id: 'nongshim-kimtongkkae',
+    maker: '농심',
+    name: '라면왕 김통깨',
+    type: '국물',
+    water: '500ml',
+    start: '끓는 물',
+    guide: '물 500ml에 면, 분말스프, 조미유를 넣고 4분 끓인 뒤 후첨토핑을 넣습니다.',
+    sourceLabel: '포장 리뷰',
+    sourceUrl: 'https://tot42.tistory.com/entry/%EB%82%B4%EB%8F%88%EB%82%B4%EC%82%B0-%EB%86%8D%EC%8B%AC-%EB%9D%BC%EB%A9%B4%EC%99%95-%EA%B9%80%ED%86%B5%EA%B9%A8-%EB%A7%9B%EC%9E%88%EA%B2%8C-%EB%A8%B9%EB%8A%94%EB%B2%95-%EC%B4%88%EA%B0%84%EB%8B%A8-%EB%A6%AC%EB%B7%B0',
+    steps: [
+      { name: '후첨토핑 넣기', icon: '🌿', durationSec: 240,
+        emoji: '🌿', alertMsg: '라면왕 김통깨 4분 조리가 끝났습니다. 후첨토핑을 넣어 마무리하세요.',
+        actionLabel: '후첨토핑 넣기' },
+    ],
+  },
+  {
+    id: 'ottogi-odongtong',
+    maker: '오뚜기',
+    name: '오동통면',
+    type: '국물',
+    water: '550ml',
+    start: '끓는 물',
+    guide: '물 550ml에 면과 스프를 넣고 4분 30초 정도 끓여 쫄깃한 면발을 살립니다.',
+    sourceLabel: '포장 리뷰',
+    sourceUrl: 'https://ideas1117.tistory.com/27',
+    steps: [
+      { name: '면 끓이기', icon: '🍜', durationSec: 270,
+        emoji: '🍜', alertMsg: '오동통면 4분 30초 조리가 끝났습니다. 바로 담아 주세요.',
+        actionLabel: '완료 확인' },
+    ],
+  },
+  {
+    id: 'samyang-jjajjoroni',
+    maker: '삼양',
+    name: '짜짜로니',
+    type: '짜장',
+    water: '600ml',
+    start: '끓는 물',
+    guide: '물 600ml에 면과 후레이크를 넣고 5분 30초 끓인 뒤 물을 남기고 스프와 조미유를 비빕니다.',
+    sourceLabel: '포장 리뷰',
+    sourceUrl: 'https://highca.com/178',
+    steps: [
+      { name: '물 남기고 비비기', icon: '🥢', durationSec: 330,
+        emoji: '🥢', alertMsg: '짜짜로니 5분 30초 조리가 끝났습니다. 물을 남기고 스프와 조미유를 비벼 주세요.',
+        actionLabel: '비비기 시작' },
+    ],
+  },
+  {
+    id: 'samyang-ganjjambbong',
+    maker: '삼양',
+    name: '간짬뽕',
+    type: '볶음',
+    water: '600ml',
+    start: '끓는 물',
+    guide: '물 600ml에 면과 후레이크를 넣고 5분 익힌 뒤 물을 조금 남기고 소스를 비빕니다.',
+    sourceLabel: '포장 리뷰',
+    sourceUrl: 'https://happier-ye.tistory.com/874',
+    steps: [
+      { name: '물 남기고 비비기', icon: '🥢', durationSec: 300,
+        emoji: '🥢', alertMsg: '간짬뽕 5분 조리가 끝났습니다. 물을 조금 남기고 소스를 비벼 주세요.',
+        actionLabel: '비비기 시작' },
+    ],
+  },
+  {
+    id: 'samyang-cheese-buldak',
+    maker: '삼양',
+    name: '치즈불닭볶음면',
+    type: '볶음',
+    water: '600ml',
+    start: '끓는 물',
+    guide: '물 600ml에 면을 5분 삶고 8스푼 정도만 남긴 뒤 소스와 치즈를 넣어 비빕니다.',
+    sourceLabel: '불닭 레시피',
+    sourceUrl: 'https://app.samsungfood.com/recipes/10701916d3ecc2373b0ae618ac9d26b48dc',
+    steps: [
+      { name: '치즈 비비기', icon: '🧀', durationSec: 300,
+        emoji: '🧀', alertMsg: '치즈불닭볶음면 5분 조리가 끝났습니다. 물을 남기고 소스와 치즈를 비벼 주세요.',
+        actionLabel: '비비기 시작' },
+    ],
+  },
+];
+
+const RAMEN_POPULARITY_ORDER = [
+  'nongshim-shin',
+  'ottogi-jin-hot',
+  'ottogi-jin-mild',
+  'samyang-buldak',
+  'nongshim-chapagetti',
+  'nongshim-neoguri',
+  'paldo-bibim',
+  'ottogi-yeul',
+  'nongshim-ansung',
+  'samyang-buldak-carbonara',
+  'samyang-cheese-buldak',
+  'ottogi-sesame',
+  'nongshim-ojingeo',
+  'nongshim-jjawang',
+  'nongshim-sarigomtang',
+  'nongshim-myeolchi-kalguksu',
+  'nongshim-kimtongkkae',
+  'nongshim-baehongdong-bibim',
+  'paldo-teumsae',
+  'samyang-ramen',
+  'nongshim-shin-nonfrying',
+  'ottogi-jin-jjamppong',
+  'nongshim-shin-black',
+  'paldo-kokomen',
+  'nongshim-gamjatang',
+  'nongshim-baehongdong-kalbim',
+  'nongshim-baehongdong-jjoljjol',
+  'nongshim-baehongdong-makguksu',
+  'nongshim-mupama',
+  'ottogi-odongtong',
+  'samyang-jjajjoroni',
+  'samyang-ganjjambbong',
+];
+const RAMEN_POPULARITY = Object.fromEntries(
+  RAMEN_POPULARITY_ORDER.map((id, idx) => [id, RAMEN_POPULARITY_ORDER.length - idx])
+);
+const RAMEN_FILTER_STORAGE_KEY = 'step-timer:ramen-filter:v1';
+const RAMEN_FAVORITES_STORAGE_KEY = 'step-timer:ramen-favorites:v1';
+
+const MANDU_PRESETS = [
+  {
+    id: 'cj-bibigo-wanggyoja',
+    maker: 'CJ',
+    name: '비비고 왕교자',
+    kind: '교자',
+    sourceLabel: '코스트코 공식',
+    sourceUrl: 'https://www.costco.co.kr/Foods/Frozen-Foods/Instant-FoodDumplingTraditional-PancakesCheese/Bibigo-Dumplings-Selection-K2/p/641176-K2',
+    steamFrozenSec: 420,
+    steamThawedSec: 360,
+    guideFrozen: '찜기에 찜판이 잠기지 않을 만큼 물을 붓고 끓인 뒤 냉동 만두 5알을 올려 강불 7분 쪄요.',
+    guideThawed: '해동된 만두는 6분 전후로 맞춰 주세요.',
+  },
+  {
+    id: 'cj-bibigo-kimchi-wanggyoja',
+    maker: 'CJ',
+    name: '비비고 김치왕교자',
+    kind: '교자',
+    sourceLabel: '코스트코 공식',
+    sourceUrl: 'https://www.costco.co.kr/Foods/Frozen-Foods/Instant-FoodDumplingTraditional-PancakesCheese/Bibigo-Dumplings-Selection-K2/p/641176-K2',
+    steamFrozenSec: 420,
+    steamThawedSec: 360,
+    guideFrozen: '왕교자와 같은 기준으로 냉동 상태 7분을 잡아 주세요.',
+    guideThawed: '해동된 김치왕교자는 6분 전후로 보면 됩니다.',
+  },
+  {
+    id: 'cj-bibigo-saeu-wanggyoja',
+    maker: 'CJ',
+    name: '비비고 새우왕교자',
+    kind: '교자',
+    sourceLabel: 'CJ 공식',
+    sourceUrl: 'https://www.cj.co.kr/kr/support/faq/760',
+    steamFrozenSec: 420,
+    steamThawedSec: 360,
+    guideFrozen: '해동하지 않은 냉동 새우왕교자를 7분간 조리해 주세요.',
+    guideThawed: '해동 상태라면 6분 전후로만 맞춰도 충분합니다.',
+  },
+  {
+    id: 'cj-bibigo-pyangyang',
+    maker: 'CJ',
+    name: '비비고 평양만두',
+    kind: '왕만두',
+    sourceLabel: 'CJ 공식',
+    sourceUrl: 'https://www.cj.co.kr/kr/support/faq/1930',
+    steamFrozenSec: 570,
+    steamThawedSec: 510,
+    guideFrozen: '끓는 물 기준 9~10분이 공식이고, 찜기라면 9분 전후로 보면 맞습니다.',
+    guideThawed: '해동 상태는 8분대부터 확인하면 됩니다.',
+  },
+  {
+    id: 'dongwon-kaeseong-wanggyoja',
+    maker: '동원',
+    name: '동원 개성 왕교자',
+    kind: '교자',
+    sourceLabel: '동원 공식',
+    sourceUrl: 'https://www.dongwonfnb.com/services/Brand/Brand_View?brandno=36',
+    steamFrozenSec: 480,
+    steamThawedSec: 420,
+    guideFrozen: '찜기 물이 끓으면 냉동 왕교자를 올려 8분 안팎으로 맞춰 주세요.',
+    guideThawed: '해동 상태는 7분 전후로 보면 됩니다.',
+  },
+  {
+    id: 'dongwon-kaeseong-kimchi-wanggyoja',
+    maker: '동원',
+    name: '동원 개성 김치왕교자',
+    kind: '교자',
+    sourceLabel: '동원 공식',
+    sourceUrl: 'https://www.dongwonfnb.com/services/Brand/Brand_View?brandno=36',
+    steamFrozenSec: 480,
+    steamThawedSec: 420,
+    guideFrozen: '김치왕교자도 찜기 기준 8분 안팎으로 잡아 주세요.',
+    guideThawed: '해동 상태는 7분 전후로 맞추면 됩니다.',
+  },
+  {
+    id: 'dongwon-kaeseong-wangmandu',
+    maker: '동원',
+    name: '동원 개성 왕만두',
+    kind: '왕만두',
+    sourceLabel: '동원 공식',
+    sourceUrl: 'https://www.dongwonfnb.com/services/Brand/Brand_View?brandno=36',
+    steamFrozenSec: 660,
+    steamThawedSec: 600,
+    guideFrozen: '큰 사이즈라 찜기 기준 11분 전후를 기본값으로 두면 안정적입니다.',
+    guideThawed: '해동 상태는 10분 전후로 확인해 주세요.',
+  },
+  {
+    id: 'dongwon-kaeseong-kimchi-wangmandu',
+    maker: '동원',
+    name: '동원 개성 김치왕만두',
+    kind: '왕만두',
+    sourceLabel: '동원 공식',
+    sourceUrl: 'https://www.dongwonfnb.com/services/Brand/Brand_View?brandno=36',
+    steamFrozenSec: 660,
+    steamThawedSec: 600,
+    guideFrozen: '김치왕만두도 11분 안팎으로 맞추면 됩니다.',
+    guideThawed: '해동 상태는 10분 전후로 보면 됩니다.',
+  },
+  {
+    id: 'dongwon-kaeseong-mulmandu',
+    maker: '동원',
+    name: '동원 개성 물만두',
+    kind: '물만두',
+    sourceLabel: '동원몰 공식',
+    sourceUrl: 'https://www.dongwonmall.com/product/detail.do?productId=000626798',
+    steamFrozenSec: 360,
+    steamThawedSec: 300,
+    guideFrozen: '작은 물만두는 찜기 기준 6분 전후가 기본값입니다.',
+    guideThawed: '해동 상태는 5분 안팎으로 봐 주세요.',
+  },
+  {
+    id: 'dongwon-kaeseong-baekkimchi-mulmandu',
+    maker: '동원',
+    name: '동원 개성 백김치 물만두',
+    kind: '물만두',
+    sourceLabel: '동원 공식',
+    sourceUrl: 'https://www.dongwonfnb.com/services/Brand/Brand_View?brandno=36',
+    steamFrozenSec: 360,
+    steamThawedSec: 300,
+    guideFrozen: '백김치 물만두도 찜기 6분 전후로 보면 됩니다.',
+    guideThawed: '해동 상태는 5분 안팎으로 맞춰 주세요.',
+  },
+  {
+    id: 'dongwon-kaeseong-gamja',
+    maker: '동원',
+    name: '동원 개성 감자만두',
+    kind: '기타',
+    sourceLabel: '동원 공식',
+    sourceUrl: 'https://www.dongwonfnb.com/services/Brand/Brand_View?brandno=36',
+    steamFrozenSec: 420,
+    steamThawedSec: 360,
+    guideFrozen: '감자만두는 찜기 기준 7분 안팎으로 시작해 주세요.',
+    guideThawed: '해동 상태는 6분 전후로 확인하면 됩니다.',
+  },
+  {
+    id: 'dongwon-dimsum-xiaolongbao',
+    maker: '동원',
+    name: '동원 딤섬 샤오롱바오',
+    kind: '딤섬',
+    sourceLabel: '동원 공식',
+    sourceUrl: 'https://www.dongwonfnb.com/services/Brand/Brand_View?brandno=112',
+    steamFrozenSec: 420,
+    steamThawedSec: 360,
+    guideFrozen: '끓는 물이 있는 찜기에 냉동 샤오롱바오를 넣고 약 7분 쪄요.',
+    guideThawed: '해동 상태는 6분 전후로 보시면 됩니다.',
+  },
+  {
+    id: 'dongwon-dimsum-saeu-hagau',
+    maker: '동원',
+    name: '동원 딤섬 새우하가우',
+    kind: '딤섬',
+    sourceLabel: '동원 공식',
+    sourceUrl: 'https://www.dongwonfnb.com/services/Brand/Brand_View?brandno=112',
+    steamFrozenSec: 360,
+    steamThawedSec: 300,
+    guideFrozen: '찜기에 만두를 넣고 약 6분 쪄 주면 됩니다.',
+    guideThawed: '해동 상태는 5분 전후로 맞춰 주세요.',
+  },
+  {
+    id: 'dongwon-dimsum-buchu-champun',
+    maker: '동원',
+    name: '동원 딤섬 부추창펀',
+    kind: '딤섬',
+    sourceLabel: '동원 공식',
+    sourceUrl: 'https://www.dongwonfnb.com/services/Brand/Brand_View?brandno=112',
+    steamFrozenSec: 840,
+    steamThawedSec: 240,
+    guideFrozen: '소스를 상온에서 10분 해동한 뒤 냉동 창펀 4~5개를 4분 쪄요.',
+    guideThawed: '소스가 준비됐다면 창펀은 4분만 잡아 주세요.',
+    stepsByState: {
+      frozen: [
+        { name: '소스 해동', icon: '🥣', durationSec: 600, emoji: '🥣', alertMsg: '부추창펀 소스를 상온에서 10분 해동해 주세요.', actionLabel: '소스 확인' },
+        { name: '창펀 찜', icon: '🥟', durationSec: 240, emoji: '🥟', alertMsg: '냉동 창펀 4~5개를 겹치지 않게 넣고 4분 쪄 주세요.', actionLabel: '찜 확인' },
+      ],
+      thawed: [
+        { name: '창펀 찜', icon: '🥟', durationSec: 240, emoji: '🥟', alertMsg: '창펀을 겹치지 않게 넣고 4분 쪄 주세요.', actionLabel: '찜 확인' },
+      ],
+    },
+  },
+  {
+    id: 'dongwon-dimsum-buchee-gyo',
+    maker: '동원',
+    name: '동원 딤섬 부채교',
+    kind: '딤섬',
+    sourceLabel: '동원 공식',
+    sourceUrl: 'https://www.dongwonfnb.com/services/Brand/Brand_View?brandno=112',
+    steamFrozenSec: 390,
+    steamThawedSec: 330,
+    guideFrozen: '센불에서 6분 30초 찌면 완성이에요.',
+    guideThawed: '해동 상태는 5분 30초 전후로 보면 됩니다.',
+  },
+  {
+    id: 'pulmuone-thin-gogi',
+    maker: '풀무원',
+    name: '풀무원 얇은피꽉찬속 고기만두',
+    kind: '얇은피',
+    sourceLabel: '풀무원 공식',
+    sourceUrl: 'https://shop.pulmuone.co.kr/shop/goodsView/4677',
+    steamFrozenSec: 420,
+    steamThawedSec: 360,
+    guideFrozen: '찜기 물이 끓으면 냉동 상태의 만두를 올려 7분쯤 쪄 주세요.',
+    guideThawed: '해동 상태는 6분 전후로 맞춰 주세요.',
+  },
+  {
+    id: 'pulmuone-thin-kimchi',
+    maker: '풀무원',
+    name: '풀무원 얇은피꽉찬속 김치만두',
+    kind: '얇은피',
+    sourceLabel: '풀무원 공식',
+    sourceUrl: 'https://shop.pulmuone.co.kr/shop/goodsView/4679',
+    steamFrozenSec: 420,
+    steamThawedSec: 360,
+    guideFrozen: '김치만두도 찜기 기준 7분쯤으로 보면 됩니다.',
+    guideThawed: '해동 상태는 6분 전후로 맞추면 됩니다.',
+  },
+  {
+    id: 'pulmuone-yalpi-gogi-hansang',
+    maker: '풀무원',
+    name: '풀무원 얄피꽉찬 고기한상교자',
+    kind: '교자',
+    sourceLabel: '풀무원 공식',
+    sourceUrl: 'https://shop.pulmuone.co.kr/shop/goodsView/35778',
+    steamFrozenSec: 450,
+    steamThawedSec: 390,
+    guideFrozen: '찜기 물이 끓으면 만두를 올려 7~8분간 쪄 주세요.',
+    guideThawed: '해동 상태는 6분 30초 전후로 보면 됩니다.',
+  },
+  {
+    id: 'pulmuone-yalpi-juicy-gyoja',
+    maker: '풀무원',
+    name: '풀무원 얄피꽉찬 육즙진한 교자 만두',
+    kind: '교자',
+    sourceLabel: '풀무원 공식',
+    sourceUrl: 'https://shop.pulmuone.co.kr/shop/goodsView/41009',
+    steamFrozenSec: 450,
+    steamThawedSec: 390,
+    guideFrozen: '육즙진한 교자도 찜기 기준 7~8분으로 맞추면 됩니다.',
+    guideThawed: '해동 상태는 6분 30초 전후로 보면 됩니다.',
+  },
+  {
+    id: 'pulmuone-yalpi-wangmandu',
+    maker: '풀무원',
+    name: '풀무원 얄피꽉찬 고기왕만두',
+    kind: '왕만두',
+    sourceLabel: '풀무원 공식',
+    sourceUrl: 'https://shop.pulmuone.co.kr/shop/goodsView/41775',
+    steamFrozenSec: 690,
+    steamThawedSec: 630,
+    guideFrozen: '찜기 물이 끓으면 냉동 상태의 만두를 넣고 약 11~12분 쪄 주세요.',
+    guideThawed: '해동 상태는 10분 30초 전후로 보면 됩니다.',
+  },
+  {
+    id: 'pulmuone-saengman-dinanhgogi',
+    maker: '풀무원',
+    name: '풀무원 생만두 진한고기',
+    kind: '생만두',
+    sourceLabel: '풀무원 공식',
+    sourceUrl: 'https://shop.pulmuone.co.kr/shop/goodsView/44353',
+    steamFrozenSec: 570,
+    steamThawedSec: 510,
+    guideFrozen: '찜기 기준 9~10분을 기본값으로 보면 됩니다.',
+    guideThawed: '해동 상태는 8분 30초 전후로 확인해 주세요.',
+  },
+  {
+    id: 'pulmuone-saengman-gadkimchi',
+    maker: '풀무원',
+    name: '풀무원 생만두 갓김치',
+    kind: '생만두',
+    sourceLabel: '풀무원 공식',
+    sourceUrl: 'https://shop.pulmuone.co.kr/shop/goodsView/44443',
+    steamFrozenSec: 480,
+    steamThawedSec: 420,
+    guideFrozen: '갓김치 생만두는 찜기 기준 8분 전후를 기본값으로 두면 됩니다.',
+    guideThawed: '해동 상태는 7분 전후로 맞춰 주세요.',
+  },
+];
+const MANDU_POPULARITY = Object.fromEntries(
+  MANDU_PRESETS.map((preset, idx) => [preset.id, MANDU_PRESETS.length - idx])
+);
+const MANDU_FILTER_STORAGE_KEY = 'step-timer:mandu-filter:v1';
+const MANDU_FAVORITES_STORAGE_KEY = 'step-timer:mandu-favorites:v1';
+const MANDU_STATE_STORAGE_KEY = 'step-timer:mandu-state:v1';
+
+function manduPresetById(id) {
+  return MANDU_PRESETS.find(preset => preset.id === id) || MANDU_PRESETS[0];
+}
+function loadSelectedManduPresetId() {
+  try {
+    const saved = localStorage.getItem(MANDU_STATE_STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed && parsed.selectedPresetId && manduPresetById(parsed.selectedPresetId).id === parsed.selectedPresetId) {
+        return parsed.selectedPresetId;
+      }
+    }
+  } catch(e) {}
+  return MANDU_PRESETS[0].id;
+}
+function loadSelectedManduFrozen() {
+  try {
+    const saved = localStorage.getItem(MANDU_STATE_STORAGE_KEY);
+    if (!saved) return true;
+    const parsed = JSON.parse(saved);
+    if (typeof parsed?.frozen === 'boolean') return parsed.frozen;
+  } catch(e) {}
+  return true;
+}
+function saveSelectedManduState() {
+  try {
+    localStorage.setItem(MANDU_STATE_STORAGE_KEY, JSON.stringify({
+      selectedPresetId: selectedManduPresetId,
+      frozen: selectedManduFrozen,
+    }));
+  } catch(e) {}
+}
+function setSelectedManduPreset(id) {
+  const preset = manduPresetById(id);
+  selectedManduPresetId = preset.id;
+  saveSelectedManduState();
+  return preset;
+}
+function manduSteamSec(preset, frozen = selectedManduFrozen) {
+  return frozen ? preset.steamFrozenSec : preset.steamThawedSec;
+}
+function manduGuideText(preset, frozen = selectedManduFrozen) {
+  return frozen ? preset.guideFrozen : preset.guideThawed;
+}
+function manduStepsFor(preset, frozen = selectedManduFrozen) {
+  const steps = preset.stepsByState?.[frozen ? 'frozen' : 'thawed'];
+  if (Array.isArray(steps) && steps.length) return steps;
+  const sec = manduSteamSec(preset, frozen);
+  return [{
+    name: '찜기 조리',
+    icon: '🥟',
+    durationSec: sec,
+    emoji: '🥟',
+    alertMsg: `${preset.name} ${frozen ? '냉동' : '해동'} 기준 조리 시간이 되었습니다.`,
+    actionLabel: '완료 확인',
+  }];
+}
+function manduMilestones(id = selectedManduPresetId) {
+  return manduStepsFor(manduPresetById(id)).map(step => ({ ...step }));
+}
+function manduKind(preset) {
+  return preset.kind || '기타';
+}
+function manduSortScore(preset) {
+  return MANDU_POPULARITY[preset.id] || 0;
+}
+function loadManduFilterState() {
+  const fallback = { company: 'all', kind: 'all', sort: 'popular', favoritesOnly: false };
+  try {
+    const raw = localStorage.getItem(MANDU_FILTER_STORAGE_KEY);
+    if (!raw) return fallback;
+    return normalizeManduFilterState(JSON.parse(raw));
+  } catch(e) {}
+  return fallback;
+}
+function normalizeManduFilterState(value) {
+  const companyList = new Set(['all', ...MANDU_PRESETS.map(p => p.maker)]);
+  const kindList = new Set(['all', ...MANDU_PRESETS.map(p => manduKind(p))]);
+  const company = value && companyList.has(value.company) ? value.company : 'all';
+  const kind = value && kindList.has(value.kind) ? value.kind : 'all';
+  const sort = value && ['popular', 'alpha'].includes(value.sort) ? value.sort : 'popular';
+  return { company, kind, sort, favoritesOnly: Boolean(value?.favoritesOnly) };
+}
+function saveManduFilterState() {
+  try {
+    localStorage.setItem(MANDU_FILTER_STORAGE_KEY, JSON.stringify(manduFilterState));
+  } catch(e) {}
+}
+function loadManduFavorites() {
+  try {
+    const raw = localStorage.getItem(MANDU_FAVORITES_STORAGE_KEY);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr)) return new Set();
+    const valid = arr.filter(id => MANDU_PRESETS.some(p => p.id === id));
+    return new Set(valid);
+  } catch(e) {}
+  return new Set();
+}
+function saveManduFavorites() {
+  try {
+    localStorage.setItem(MANDU_FAVORITES_STORAGE_KEY, JSON.stringify([...manduFavoriteIds]));
+  } catch(e) {}
+}
+function isManduFavorite(id) {
+  return manduFavoriteIds.has(id);
+}
+function filteredManduPresets() {
+  return MANDU_PRESETS.filter(preset => {
+    if (manduFilterState.company !== 'all' && preset.maker !== manduFilterState.company) return false;
+    if (manduFilterState.kind !== 'all' && manduKind(preset) !== manduFilterState.kind) return false;
+    if (manduFilterState.favoritesOnly && !isManduFavorite(preset.id)) return false;
+    return true;
+  }).sort((a, b) => {
+    if (manduFilterState.sort === 'alpha') {
+      const nameOrder = a.name.localeCompare(b.name, 'ko');
+      if (nameOrder !== 0) return nameOrder;
+      const makerOrder = a.maker.localeCompare(b.maker, 'ko');
+      if (makerOrder !== 0) return makerOrder;
+      return manduSortScore(b) - manduSortScore(a);
+    }
+    const scoreA = manduSortScore(a);
+    const scoreB = manduSortScore(b);
+    if (scoreA !== scoreB) return scoreB - scoreA;
+    if (a.maker !== b.maker) return a.maker.localeCompare(b.maker, 'ko');
+    return a.name.localeCompare(b.name, 'ko');
+  });
+}
 
 // durationSec = 각 구간 시간 (독립)
 // 알람 발화 시점 = 앞 구간들의 합 (누적)
-const MS_DEFAULTS = [
-  { name:'뒤집기',      icon:'🔄', durationSec: 300,
-    emoji:'🔄', alertMsg:'원두를 뒤집어 주세요! 균일한 로스팅을 위해 고르게 섞어 주세요.',
-    actionLabel:'뒤집기 완료' },
-  { name:'상태 체크',   icon:'👁️', durationSec: 300,
-    emoji:'👁️', alertMsg:'원두 색상과 팝핑 소리를 확인해 주세요.',
-    actionLabel:'상태 체크 완료' },
-  { name:'로스팅 완료', icon:'✅', durationSec: 120,
-    emoji:'✅', alertMsg:'목표 시간에 도달했습니다!',
-    actionLabel:'완료 확인' },
-];
+const TIMER_PROFILES = {
+  roast: {
+    label: '로스팅',
+    chip: 'ROAST',
+    title: '로스팅 타이머',
+    subtitle: '예열부터 완료까지 단계별로 확인합니다.',
+    startButton: '☕ 로스팅 시작',
+    totalLabel: '총 로스팅',
+    doneLabel: '로스팅 완료',
+    doneStatus: '🌬️ 쿨링 중',
+    finishTitle: '로스팅 완료 시점',
+    finishSub: '더 구울 시간을 선택하거나 쿨링을 시작하세요.',
+    finishButton: '쿨링 시작',
+    extendVerb: '더 굽기',
+    preheat: true,
+    defaultPreheatSec: 600,
+    defaultTargetTemp: 220,
+    preheatAlarm: {
+      emoji:'🔥', name:'예열 완료',
+      alertMsg:'예열이 완료되었습니다. 원두를 투입할 준비를 하세요!',
+      actionLabel:'예열 완료 확인',
+    },
+    milestones: [
+      { name:'뒤집기',      icon:'🔄', durationSec: 300,
+        emoji:'🔄', alertMsg:'원두를 뒤집어 주세요! 균일한 로스팅을 위해 고르게 섞어 주세요.',
+        actionLabel:'뒤집기 완료' },
+      { name:'상태 체크',   icon:'👁️', durationSec: 300,
+        emoji:'👁️', alertMsg:'원두 색상과 팝핑 소리를 확인해 주세요.',
+        actionLabel:'상태 체크 완료' },
+      { name:'로스팅 완료', icon:'✅', durationSec: 120,
+        emoji:'✅', alertMsg:'목표 시간에 도달했습니다!',
+        actionLabel:'완료 확인' },
+    ],
+  },
+  mandu: {
+    label: '만두',
+    chip: 'MANDU',
+    title: '만두 타이머',
+    subtitle: '찜기 기준으로 냉동과 해동 시간을 바로 맞춥니다.',
+    startButton: '🥟 만두 시작',
+    totalLabel: '총 조리',
+    doneLabel: '만두 완료',
+    doneStatus: '완료됨',
+    finishTitle: '만두 완료 시점',
+    finishSub: '조금 더 익히거나 조리를 마무리하세요.',
+    finishButton: '조리 완료',
+    extendVerb: '더 익히기',
+    preheat: false,
+    defaultPreheatSec: 0,
+    defaultTargetTemp: 100,
+    milestones: [
+      { name:'찜기 준비', icon:'💧', durationSec: 60,
+        emoji:'💧', alertMsg:'찜기 물을 올리고 끓는지 확인해 주세요.',
+        actionLabel:'준비 완료' },
+      { name:'찜기 조리', icon:'🥟', durationSec: 420,
+        emoji:'🥟', alertMsg:'선택한 만두를 찜기에 올려 조리해 주세요.',
+        actionLabel:'찜 확인' },
+      { name:'마무리', icon:'✅', durationSec: 60,
+        emoji:'✅', alertMsg:'만두가 거의 완성되었습니다.',
+        actionLabel:'완료 확인' },
+    ],
+  },
+  ramen: {
+    label: '라면',
+    chip: 'RAMEN',
+    title: '라면 타이머',
+    subtitle: '제품별 1봉 조리법과 끓는 물 기준 타이머를 맞춥니다.',
+    startButton: '🍜 라면 시작',
+    totalLabel: '총 조리',
+    doneLabel: '라면 완료',
+    doneStatus: '완료됨',
+    finishTitle: '라면 완료 시점',
+    finishSub: '조금 더 조리하거나 바로 마무리하세요.',
+    finishButton: '조리 완료',
+    extendVerb: '더 조리하기',
+    preheat: false,
+    defaultPreheatSec: 0,
+    defaultTargetTemp: 100,
+    milestones: ramenMilestones('nongshim-shin'),
+  },
+};
+
+let activeProfileId = loadActiveProfileId();
+let selectedRamenPresetId = loadSelectedRamenPresetId();
+let selectedManduPresetId = loadSelectedManduPresetId();
+let selectedManduFrozen = loadSelectedManduFrozen();
+let ramenFilterState = loadRamenFilterState();
+let ramenFavoriteIds = loadRamenFavorites();
+let ramenListScrollMode = null;
+let manduFilterState = loadManduFilterState();
+let manduFavoriteIds = loadManduFavorites();
+let manduListScrollMode = null;
+let MS_DEFAULTS = defaultMilestonesFor(activeProfileId);
+
+function loadActiveProfileId() {
+  try {
+    const saved = localStorage.getItem(PROFILE_STORAGE_KEY);
+    if (saved && TIMER_PROFILES[saved]) return saved;
+  } catch(e) {}
+  return 'roast';
+}
+function ramenPresetById(id) {
+  return RAMEN_PRESETS.find(preset => preset.id === id) || RAMEN_PRESETS[0];
+}
+function loadSelectedRamenPresetId() {
+  try {
+    const saved = localStorage.getItem(RAMEN_PRESET_STORAGE_KEY);
+    if (saved && ramenPresetById(saved).id === saved) return saved;
+  } catch(e) {}
+  return RAMEN_PRESETS[0].id;
+}
+function setSelectedRamenPreset(id) {
+  const preset = ramenPresetById(id);
+  selectedRamenPresetId = preset.id;
+  try { localStorage.setItem(RAMEN_PRESET_STORAGE_KEY, preset.id); } catch(e) {}
+  return preset;
+}
+function presetTotalSec(preset) {
+  return preset.steps.reduce((sum, step) => sum + step.durationSec, 0);
+}
+function ramenMilestones(id = selectedRamenPresetId) {
+  return ramenPresetById(id).steps.map(step => ({ ...step }));
+}
+function currentProfile() {
+  return TIMER_PROFILES[activeProfileId] || TIMER_PROFILES.roast;
+}
+function defaultMilestonesFor(id = activeProfileId) {
+  if (id === 'ramen') return ramenMilestones();
+  if (id === 'mandu') return manduMilestones();
+  const profile = TIMER_PROFILES[id] || TIMER_PROFILES.roast;
+  return profile.milestones.map(ms => ({ ...ms }));
+}
+function ramenKind(preset) {
+  return ['비빔', '볶음', '짜장'].includes(preset.type) ? 'mix' : 'boil';
+}
+function ramenKindLabel(kind) {
+  return kind === 'mix' ? '비비는 라면' : '끓이는 라면';
+}
+function ramenSortLabel(sort) {
+  return sort === 'alpha' ? '가나다순' : '인기순';
+}
+function ramenSortScore(preset) {
+  return RAMEN_POPULARITY[preset.id] || 0;
+}
+function loadRamenFilterState() {
+  const fallback = { company: 'all', kind: 'all', sort: 'popular', favoritesOnly: false };
+  try {
+    const raw = localStorage.getItem(RAMEN_FILTER_STORAGE_KEY);
+    if (!raw) return fallback;
+    return normalizeRamenFilterState(JSON.parse(raw));
+  } catch(e) {}
+  return fallback;
+}
+function normalizeRamenFilterState(value) {
+  const companyList = new Set(['all', ...RAMEN_PRESETS.map(p => p.maker)]);
+  const company = value && companyList.has(value.company) ? value.company : 'all';
+  const kind = value && ['all', 'boil', 'mix'].includes(value.kind) ? value.kind : 'all';
+  const sort = value && ['popular', 'alpha'].includes(value.sort) ? value.sort : 'popular';
+  return { company, kind, sort, favoritesOnly: Boolean(value?.favoritesOnly) };
+}
+function saveRamenFilterState() {
+  try {
+    localStorage.setItem(RAMEN_FILTER_STORAGE_KEY, JSON.stringify(ramenFilterState));
+  } catch(e) {}
+}
+function loadRamenFavorites() {
+  try {
+    const raw = localStorage.getItem(RAMEN_FAVORITES_STORAGE_KEY);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr)) return new Set();
+    const valid = arr.filter(id => RAMEN_PRESETS.some(p => p.id === id));
+    return new Set(valid);
+  } catch(e) {}
+  return new Set();
+}
+function saveRamenFavorites() {
+  try {
+    localStorage.setItem(RAMEN_FAVORITES_STORAGE_KEY, JSON.stringify([...ramenFavoriteIds]));
+  } catch(e) {}
+}
+function isRamenFavorite(id) {
+  return ramenFavoriteIds.has(id);
+}
+function filteredRamenPresets() {
+  return RAMEN_PRESETS.filter(preset => {
+    if (ramenFilterState.company !== 'all' && preset.maker !== ramenFilterState.company) return false;
+    if (ramenFilterState.kind !== 'all' && ramenKind(preset) !== ramenFilterState.kind) return false;
+    if (ramenFilterState.favoritesOnly && !isRamenFavorite(preset.id)) return false;
+    return true;
+  }).sort((a, b) => {
+    if (ramenFilterState.sort === 'alpha') {
+      const nameOrder = a.name.localeCompare(b.name, 'ko');
+      if (nameOrder !== 0) return nameOrder;
+      const makerOrder = a.maker.localeCompare(b.maker, 'ko');
+      if (makerOrder !== 0) return makerOrder;
+      return ramenSortScore(b) - ramenSortScore(a);
+    }
+    const scoreA = ramenSortScore(a);
+    const scoreB = ramenSortScore(b);
+    if (scoreA !== scoreB) return scoreB - scoreA;
+    if (a.maker !== b.maker) return a.maker.localeCompare(b.maker, 'ko');
+    return a.name.localeCompare(b.name, 'ko');
+  });
+}
+function recipeKey() {
+  return `${RECIPE_STORAGE_PREFIX}${activeProfileId}:v1`;
+}
 
 // 누적 알람 시점 계산 (i번째 마일스톤의 발화 시점 = 0~i 구간의 합)
 function triggerAt(idx) {
@@ -739,11 +2247,7 @@ const S = {
 
   milestones: MS_DEFAULTS.map(d => ({ ...d, reached: false })),
 
-  preheatAlarm: {
-    reached: false, emoji:'🔥', name:'예열 완료',
-    alertMsg:'예열이 완료되었습니다. 원두를 투입할 준비를 하세요!',
-    actionLabel:'예열 완료 확인',
-  },
+  preheatAlarm: { ...TIMER_PROFILES.roast.preheatAlarm, reached: false },
 
   alertQueue: [],
   alertActive: false,
@@ -807,14 +2311,16 @@ function normalizeMilestone(item, idx) {
 }
 function setTargetTemp(value) {
   const input = document.getElementById('target-temp');
-  input.value = clampInt(value, 100, 300, DEFAULT_TARGET_TEMP);
+  const fallback = currentProfile().defaultTargetTemp || DEFAULT_TARGET_TEMP;
+  input.value = clampInt(value, 100, 300, fallback);
 }
 function getTargetTemp() {
-  return clampInt(document.getElementById('target-temp').value, 100, 300, DEFAULT_TARGET_TEMP);
+  const fallback = currentProfile().defaultTargetTemp || DEFAULT_TARGET_TEMP;
+  return clampInt(document.getElementById('target-temp').value, 100, 300, fallback);
 }
 function saveRecipe() {
   try {
-    localStorage.setItem(RECIPE_STORAGE_KEY, JSON.stringify({
+    const payload = {
       preheatTargetSec: S.preheatTargetSec,
       targetTemp: getTargetTemp(),
       milestones: S.milestones.map(ms => ({
@@ -825,27 +2331,523 @@ function saveRecipe() {
         alertMsg: ms.alertMsg,
         actionLabel: ms.actionLabel,
       })),
-    }));
+    };
+    if (activeProfileId === 'ramen') payload.selectedPresetId = selectedRamenPresetId;
+    if (activeProfileId === 'mandu') {
+      payload.selectedPresetId = selectedManduPresetId;
+      payload.manduFrozen = selectedManduFrozen;
+    }
+    localStorage.setItem(recipeKey(), JSON.stringify(payload));
   } catch(e) {}
 }
 function loadRecipe() {
   try {
-    const raw = localStorage.getItem(RECIPE_STORAGE_KEY);
-    if (!raw) { setTargetTemp(DEFAULT_TARGET_TEMP); return; }
+    const raw = localStorage.getItem(recipeKey()) ||
+      (activeProfileId === 'roast' ? localStorage.getItem(LEGACY_RECIPE_STORAGE_KEY) : null);
+    if (!raw) { setTargetTemp(currentProfile().defaultTargetTemp || DEFAULT_TARGET_TEMP); return; }
     const saved = JSON.parse(raw);
+    if (activeProfileId === 'ramen' && saved.selectedPresetId && ramenPresetById(saved.selectedPresetId).id === saved.selectedPresetId) {
+      setSelectedRamenPreset(saved.selectedPresetId);
+      MS_DEFAULTS = defaultMilestonesFor(activeProfileId);
+      S.milestones = MS_DEFAULTS.map(d => ({ ...d, reached: false }));
+    }
+    if (activeProfileId === 'mandu' && typeof saved.manduFrozen === 'boolean') {
+      selectedManduFrozen = saved.manduFrozen;
+      try { localStorage.setItem(MANDU_STATE_STORAGE_KEY, JSON.stringify({ selectedPresetId: selectedManduPresetId, frozen: selectedManduFrozen })); } catch(e) {}
+    }
+    if (activeProfileId === 'mandu' && saved.selectedPresetId && manduPresetById(saved.selectedPresetId).id === saved.selectedPresetId) {
+      setSelectedManduPreset(saved.selectedPresetId);
+      MS_DEFAULTS = defaultMilestonesFor(activeProfileId);
+      S.milestones = MS_DEFAULTS.map(d => ({ ...d, reached: false }));
+    }
     S.preheatTargetSec = clampInt(saved.preheatTargetSec, 30, 60 * 60, S.preheatTargetSec);
     setTargetTemp(saved.targetTemp);
     if (Array.isArray(saved.milestones) && saved.milestones.length) {
       S.milestones = saved.milestones.slice(0, 12).map(normalizeMilestone);
-      if (S.milestones.length === 1) S.milestones.push(normalizeMilestone(MS_DEFAULTS[2], 2));
     }
   } catch(e) {
-    setTargetTemp(DEFAULT_TARGET_TEMP);
+    setTargetTemp(currentProfile().defaultTargetTemp || DEFAULT_TARGET_TEMP);
   }
+}
+function isProfileSwitchLocked() {
+  return S.masterRunning || S.preheatRunning || (S.masterElapsed > 0 && !S.masterDone);
+}
+function updateModeTabs() {
+  const locked = isProfileSwitchLocked();
+  document.querySelectorAll('[data-profile-tab]').forEach(btn => {
+    const selected = btn.dataset.profileTab === activeProfileId;
+    btn.setAttribute('aria-selected', String(selected));
+    btn.tabIndex = selected ? 0 : -1;
+    btn.disabled = locked;
+  });
+}
+function setMasterIdleButton() {
+  const btn = document.getElementById('start-btn');
+  btn.textContent = currentProfile().startButton;
+  btn.className = 'start-btn';
+  btn.style.cursor = '';
+}
+function resetMasterToIdleState() {
+  S.masterRunning = false;
+  S.masterStartTs = null;
+  S.masterElapsed = 0;
+  S.masterDone = false;
+  S.extensionAddedSec = 0;
+  document.getElementById('master-status').textContent = '대기 중';
+  document.getElementById('master-status').className = '';
+  setMasterIdleButton();
+  setRingProgress(0);
+}
+function renderRamenFilterControls() {
+  const kindWrap = document.getElementById('preset-kind-filters');
+  const brandWrap = document.getElementById('preset-brand-filters');
+  const sortWrap = document.getElementById('preset-sort-filters');
+  const favoritesToggle = document.getElementById('preset-favorites-toggle');
+
+  if (!kindWrap || !brandWrap || !sortWrap || !favoritesToggle) return;
+
+  const kindOptions = [
+    { id: 'all', label: '전체' },
+    { id: 'boil', label: '끓이는 라면' },
+    { id: 'mix', label: '비비는 라면' },
+  ];
+  const sortOptions = [
+    { id: 'popular', label: '인기순' },
+    { id: 'alpha', label: '가나다순' },
+  ];
+  const brands = ['all', ...new Set(RAMEN_PRESETS.map(p => p.maker))];
+
+  kindWrap.innerHTML = kindOptions.map(opt =>
+    `<button class="preset-chip ${ramenFilterState.kind === opt.id ? 'active' : ''}" type="button" onclick="setRamenFilter('kind', '${opt.id}')">${htmlEscape(opt.label)}</button>`
+  ).join('');
+
+  sortWrap.innerHTML = sortOptions.map(opt =>
+    `<button class="preset-chip ${ramenFilterState.sort === opt.id ? 'active' : ''}" type="button" onclick="setRamenFilter('sort', '${opt.id}')">${htmlEscape(opt.label)}</button>`
+  ).join('');
+
+  brandWrap.innerHTML = brands.map(brand => {
+    const label = brand === 'all' ? '전체' : brand;
+    return `<button class="preset-chip ${ramenFilterState.company === brand ? 'active' : ''}" type="button" onclick="setRamenFilter('company', '${brand}')">${htmlEscape(label)}</button>`;
+  }).join('');
+
+  favoritesToggle.classList.toggle('fav-on', ramenFilterState.favoritesOnly);
+  favoritesToggle.textContent = ramenFilterState.favoritesOnly ? '★ 즐겨찾기만' : '☆ 즐겨찾기만';
+}
+function renderPresetMeta(badges) {
+  return badges.map(badge => {
+    const label = htmlEscape(badge.label);
+    const value = htmlEscape(badge.value);
+    return `<span class="preset-detail-badge">${label} <strong>${value}</strong></span>`;
+  }).join('');
+}
+function renderRamenDetail() {
+  const preset = ramenPresetById(selectedRamenPresetId);
+  const sourceLink = document.getElementById('preset-source-link');
+  const favBtn = document.getElementById('preset-fav-btn');
+  const metaEl = document.getElementById('preset-detail-meta');
+
+  document.getElementById('preset-name').textContent = `${preset.maker} ${preset.name}`;
+  metaEl.innerHTML = renderPresetMeta([
+    { label: '물', value: preset.water },
+    { label: '총', value: fmt(presetTotalSec(preset)) },
+  ]);
+  document.getElementById('preset-guide').textContent = preset.guide;
+  sourceLink.href = preset.sourceUrl;
+  favBtn.classList.toggle('on', isRamenFavorite(preset.id));
+  favBtn.textContent = isRamenFavorite(preset.id) ? '★' : '☆';
+  favBtn.setAttribute('aria-pressed', String(isRamenFavorite(preset.id)));
+}
+function renderRamenList() {
+  const list = filteredRamenPresets();
+  const listEl = document.getElementById('ramen-list');
+  const countEl = document.getElementById('preset-count');
+  const totalFav = [...ramenFavoriteIds].filter(id => RAMEN_PRESETS.some(p => p.id === id)).length;
+  countEl.textContent = `전체 ${RAMEN_PRESETS.length}개 · 즐겨찾기 ${totalFav}개`;
+
+  if (!listEl) return;
+  if (!list.length) {
+    listEl.innerHTML = `
+      <div class="preset-empty">
+        조건에 맞는 라면이 없습니다.<br>
+        필터를 다시 열거나 즐겨찾기를 풀어보세요.
+        <div class="preset-apply-row">
+          <button class="preset-apply" type="button" onclick="resetRamenFilters()">전체 보기</button>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  listEl.innerHTML = list.map(preset => {
+    const selected = preset.id === selectedRamenPresetId;
+    const favorite = isRamenFavorite(preset.id);
+    return `
+      <div class="preset-card ${selected ? 'selected' : ''}" role="button" tabindex="0" data-select="${htmlEscape(preset.id)}" aria-pressed="${String(selected)}">
+        <span class="preset-card-label">${htmlEscape(preset.name)}</span>
+        <button class="preset-card-fav ${favorite ? 'on' : ''}" type="button" data-fav="${htmlEscape(preset.id)}" aria-label="${htmlEscape(`${preset.name} 즐겨찾기`)}">${favorite ? '★' : '☆'}</button>
+      </div>
+    `;
+  }).join('');
+
+  listEl.onclick = e => {
+    const favBtn = e.target.closest('[data-fav]');
+    if (favBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleRamenFavorite(favBtn.dataset.fav);
+      return;
+    }
+    const card = e.target.closest('[data-select]');
+    if (!card) return;
+    selectRamenPreset(card.dataset.select);
+  };
+  listEl.onkeydown = e => {
+    if (e.target.closest('[data-fav]')) return;
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const card = e.target.closest('[data-select]');
+    if (!card) return;
+    e.preventDefault();
+    selectRamenPreset(card.dataset.select);
+  };
+
+  if (ramenListScrollMode === 'filter') {
+    listEl.scrollTop = 0;
+    const selectedCard = listEl.querySelector('.preset-card.selected');
+    if (selectedCard) {
+      requestAnimationFrame(() => {
+        selectedCard.scrollIntoView({ block: 'nearest' });
+      });
+    }
+    ramenListScrollMode = null;
+  }
+
+}
+function renderRamenBrowser() {
+  if (activeProfileId !== 'ramen') return;
+  renderRamenFilterControls();
+  renderRamenDetail();
+  renderRamenList();
+}
+function toggleRamenFavorite(id = selectedRamenPresetId) {
+  if (!id) return;
+  if (ramenFavoriteIds.has(id)) ramenFavoriteIds.delete(id);
+  else ramenFavoriteIds.add(id);
+  saveRamenFavorites();
+  renderRamenBrowser();
+}
+function toggleSelectedRamenFavorite() {
+  toggleRamenFavorite(selectedRamenPresetId);
+}
+function setRamenFilter(part, value) {
+  ramenFilterState = normalizeRamenFilterState({ ...ramenFilterState, [part]: value });
+  saveRamenFilterState();
+  ramenListScrollMode = 'filter';
+  renderRamenBrowser();
+}
+function resetRamenFilters() {
+  ramenFilterState = { company: 'all', kind: 'all', sort: 'popular', favoritesOnly: false };
+  saveRamenFilterState();
+  ramenListScrollMode = 'filter';
+  renderRamenBrowser();
+}
+function toggleRamenFavoritesOnly() {
+  setRamenFilter('favoritesOnly', !ramenFilterState.favoritesOnly);
+}
+function applyRamenPreset(id = selectedRamenPresetId) {
+  if (activeProfileId !== 'ramen' || isProfileSwitchLocked()) return;
+  if (S.extActive) _closeExtModal();
+  clearAllAlerts();
+  const preset = ramenPresetById(id);
+  setSelectedRamenPreset(preset.id);
+  MS_DEFAULTS = ramenMilestones(preset.id);
+  resetMasterToIdleState();
+  S.milestones = MS_DEFAULTS.map(d => ({ ...d, reached: false }));
+  saveRecipe();
+  renderRamenBrowser();
+  renderMilestones();
+  syncRingAndCountdown();
+  setRoastMode();
+}
+function applyCurrentRamenPreset() {
+  applyRamenPreset(selectedRamenPresetId);
+}
+function selectRamenPreset(id) {
+  applyRamenPreset(id);
+}
+function renderManduFilterControls() {
+  const kindWrap = document.getElementById('preset-kind-filters');
+  const brandWrap = document.getElementById('preset-brand-filters');
+  const sortWrap = document.getElementById('preset-sort-filters');
+  const stateWrap = document.getElementById('preset-state-filters');
+  const favoritesToggle = document.getElementById('preset-favorites-toggle');
+
+  if (!kindWrap || !brandWrap || !sortWrap || !stateWrap || !favoritesToggle) return;
+
+  const kindOrder = ['교자', '왕만두', '물만두', '딤섬', '얇은피', '생만두', '기타'];
+  const kinds = ['all', ...kindOrder.filter(kind => MANDU_PRESETS.some(preset => manduKind(preset) === kind))];
+  const sortOptions = [
+    { id: 'popular', label: '인기순' },
+    { id: 'alpha', label: '가나다순' },
+  ];
+  const brands = ['all', ...new Set(MANDU_PRESETS.map(p => p.maker))];
+
+  kindWrap.innerHTML = kinds.map(kind => {
+    const label = kind === 'all' ? '전체' : kind;
+    return `<button class="preset-chip ${manduFilterState.kind === kind ? 'active' : ''}" type="button" onclick="setCurrentPresetFilter('kind', '${kind}')">${htmlEscape(label)}</button>`;
+  }).join('');
+
+  sortWrap.innerHTML = sortOptions.map(opt =>
+    `<button class="preset-chip ${manduFilterState.sort === opt.id ? 'active' : ''}" type="button" onclick="setCurrentPresetFilter('sort', '${opt.id}')">${htmlEscape(opt.label)}</button>`
+  ).join('');
+
+  brandWrap.innerHTML = brands.map(brand => {
+    const label = brand === 'all' ? '전체' : brand;
+    return `<button class="preset-chip ${manduFilterState.company === brand ? 'active' : ''}" type="button" onclick="setCurrentPresetFilter('company', '${brand}')">${htmlEscape(label)}</button>`;
+  }).join('');
+
+  stateWrap.innerHTML = [
+    { id: 'frozen', label: '냉동', value: true },
+    { id: 'thawed', label: '해동', value: false },
+  ].map(opt =>
+    `<button class="preset-chip ${selectedManduFrozen === opt.value ? 'active' : ''}" type="button" onclick="setManduFrozenState(${opt.value})">${htmlEscape(opt.label)}</button>`
+  ).join('');
+
+  favoritesToggle.classList.toggle('fav-on', manduFilterState.favoritesOnly);
+  favoritesToggle.textContent = manduFilterState.favoritesOnly ? '★ 즐겨찾기만' : '☆ 즐겨찾기만';
+}
+function renderManduDetail() {
+  const preset = manduPresetById(selectedManduPresetId);
+  const sourceLink = document.getElementById('preset-source-link');
+  const favBtn = document.getElementById('preset-fav-btn');
+  const metaEl = document.getElementById('preset-detail-meta');
+
+  document.getElementById('preset-name').textContent = preset.name;
+  metaEl.innerHTML = renderPresetMeta([
+    { label: '찜기', value: '기준' },
+    { label: '상태', value: selectedManduFrozen ? '냉동' : '해동' },
+    { label: '총', value: fmt(manduSteamSec(preset)) },
+  ]);
+  document.getElementById('preset-guide').textContent = manduGuideText(preset);
+  sourceLink.href = preset.sourceUrl;
+  sourceLink.title = preset.sourceLabel;
+  favBtn.classList.toggle('on', isManduFavorite(preset.id));
+  favBtn.textContent = isManduFavorite(preset.id) ? '★' : '☆';
+  favBtn.setAttribute('aria-pressed', String(isManduFavorite(preset.id)));
+}
+function renderManduList() {
+  const list = filteredManduPresets();
+  const listEl = document.getElementById('ramen-list');
+  const countEl = document.getElementById('preset-count');
+  const totalFav = [...manduFavoriteIds].filter(id => MANDU_PRESETS.some(p => p.id === id)).length;
+  countEl.textContent = `전체 ${MANDU_PRESETS.length}개 · 즐겨찾기 ${totalFav}개`;
+
+  if (!listEl) return;
+  if (!list.length) {
+    listEl.innerHTML = `
+      <div class="preset-empty">
+        조건에 맞는 만두가 없습니다.<br>
+        필터를 다시 열거나 즐겨찾기를 풀어보세요.
+        <div class="preset-apply-row">
+          <button class="preset-apply" type="button" onclick="resetCurrentPresetFilters()">전체 보기</button>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  listEl.innerHTML = list.map(preset => {
+    const selected = preset.id === selectedManduPresetId;
+    const favorite = isManduFavorite(preset.id);
+    return `
+      <div class="preset-card ${selected ? 'selected' : ''}" role="button" tabindex="0" data-select="${htmlEscape(preset.id)}" aria-pressed="${String(selected)}">
+        <span class="preset-card-label">${htmlEscape(preset.name)}</span>
+        <button class="preset-card-fav ${favorite ? 'on' : ''}" type="button" data-fav="${htmlEscape(preset.id)}" aria-label="${htmlEscape(`${preset.name} 즐겨찾기`)}">${favorite ? '★' : '☆'}</button>
+      </div>
+    `;
+  }).join('');
+
+  listEl.onclick = e => {
+    const favBtn = e.target.closest('[data-fav]');
+    if (favBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleManduFavorite(favBtn.dataset.fav);
+      return;
+    }
+    const card = e.target.closest('[data-select]');
+    if (!card) return;
+    selectManduPreset(card.dataset.select);
+  };
+  listEl.onkeydown = e => {
+    if (e.target.closest('[data-fav]')) return;
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const card = e.target.closest('[data-select]');
+    if (!card) return;
+    e.preventDefault();
+    selectManduPreset(card.dataset.select);
+  };
+
+  if (manduListScrollMode === 'filter') {
+    listEl.scrollTop = 0;
+    const selectedCard = listEl.querySelector('.preset-card.selected');
+    if (selectedCard) {
+      requestAnimationFrame(() => {
+        selectedCard.scrollIntoView({ block: 'nearest' });
+      });
+    }
+    manduListScrollMode = null;
+  }
+}
+function renderManduBrowser() {
+  if (activeProfileId !== 'mandu') return;
+  renderManduFilterControls();
+  renderManduDetail();
+  renderManduList();
+}
+function toggleManduFavorite(id = selectedManduPresetId) {
+  if (!id) return;
+  if (manduFavoriteIds.has(id)) manduFavoriteIds.delete(id);
+  else manduFavoriteIds.add(id);
+  saveManduFavorites();
+  renderManduBrowser();
+}
+function toggleSelectedManduFavorite() {
+  toggleManduFavorite(selectedManduPresetId);
+}
+function setManduFilter(part, value) {
+  manduFilterState = normalizeManduFilterState({ ...manduFilterState, [part]: value });
+  saveManduFilterState();
+  manduListScrollMode = 'filter';
+  renderManduBrowser();
+}
+function resetManduFilters() {
+  manduFilterState = { company: 'all', kind: 'all', sort: 'popular', favoritesOnly: false };
+  saveManduFilterState();
+  manduListScrollMode = 'filter';
+  renderManduBrowser();
+}
+function toggleManduFavoritesOnly() {
+  setManduFilter('favoritesOnly', !manduFilterState.favoritesOnly);
+}
+function setManduFrozenState(value) {
+  const next = Boolean(value);
+  if (selectedManduFrozen === next) {
+    if (activeProfileId === 'mandu') renderManduBrowser();
+    return;
+  }
+  selectedManduFrozen = next;
+  saveSelectedManduState();
+  if (activeProfileId === 'mandu' && !isProfileSwitchLocked()) {
+    applyManduPreset(selectedManduPresetId);
+    return;
+  }
+  if (activeProfileId === 'mandu') renderManduBrowser();
+}
+function applyManduPreset(id = selectedManduPresetId) {
+  if (activeProfileId !== 'mandu' || isProfileSwitchLocked()) return;
+  if (S.extActive) _closeExtModal();
+  clearAllAlerts();
+  const preset = manduPresetById(id);
+  setSelectedManduPreset(preset.id);
+  MS_DEFAULTS = manduMilestones(preset.id);
+  resetMasterToIdleState();
+  S.milestones = MS_DEFAULTS.map(d => ({ ...d, reached: false }));
+  saveRecipe();
+  renderManduBrowser();
+  renderMilestones();
+  syncRingAndCountdown();
+  setRoastMode();
+  saveSelectedManduState();
+}
+function applyCurrentManduPreset() {
+  applyManduPreset(selectedManduPresetId);
+}
+function selectManduPreset(id) {
+  applyManduPreset(id);
+}
+function renderCurrentPresetBrowser() {
+  if (activeProfileId === 'ramen') renderRamenBrowser();
+  else if (activeProfileId === 'mandu') renderManduBrowser();
+}
+function applyCurrentPreset() {
+  if (activeProfileId === 'ramen') applyRamenPreset(selectedRamenPresetId);
+  else if (activeProfileId === 'mandu') applyManduPreset(selectedManduPresetId);
+}
+function resetCurrentPresetFilters() {
+  if (activeProfileId === 'ramen') resetRamenFilters();
+  else if (activeProfileId === 'mandu') resetManduFilters();
+}
+function toggleCurrentPresetFavoritesOnly() {
+  if (activeProfileId === 'ramen') toggleRamenFavoritesOnly();
+  else if (activeProfileId === 'mandu') toggleManduFavoritesOnly();
+}
+function toggleSelectedCurrentPresetFavorite() {
+  if (activeProfileId === 'ramen') toggleSelectedRamenFavorite();
+  else if (activeProfileId === 'mandu') toggleSelectedManduFavorite();
+}
+function setCurrentPresetFilter(part, value) {
+  if (activeProfileId === 'ramen') setRamenFilter(part, value);
+  else if (activeProfileId === 'mandu') setManduFilter(part, value);
+}
+function selectCurrentPreset(id) {
+  if (activeProfileId === 'ramen') selectRamenPreset(id);
+  else if (activeProfileId === 'mandu') selectManduPreset(id);
+}
+function updateProfileUI() {
+  const profile = currentProfile();
+  document.body.dataset.profile = activeProfileId;
+  document.getElementById('app-title').textContent = profile.title;
+  document.getElementById('app-subtitle').textContent = profile.subtitle;
+  document.getElementById('profile-chip').textContent = profile.chip;
+  document.getElementById('top-section').hidden = !profile.preheat;
+  document.getElementById('preset-section').hidden = !['ramen', 'mandu'].includes(activeProfileId);
+  document.getElementById('preset-section-label').textContent = profile.label ? `${profile.label} 프리셋` : '프리셋';
+  if (activeProfileId === 'ramen' || activeProfileId === 'mandu') renderCurrentPresetBrowser();
+  if (profile.preheatAlarm) {
+    S.preheatAlarm = { ...profile.preheatAlarm, reached: S.preheatAlarm.reached };
+  }
+  if (!S.masterRunning && !S.masterDone && S.masterElapsed === 0) setMasterIdleButton();
+  updateModeTabs();
+}
+function switchProfile(id) {
+  if (!TIMER_PROFILES[id] || id === activeProfileId || isProfileSwitchLocked()) return;
+  if (S.extActive) _closeExtModal();
+  clearAllAlerts();
+  releaseWakeLock();
+
+  activeProfileId = id;
+  try { localStorage.setItem(PROFILE_STORAGE_KEY, id); } catch(e) {}
+  MS_DEFAULTS = defaultMilestonesFor(id);
+
+  S.masterRunning = false;
+  S.masterStartTs = null;
+  S.masterElapsed = 0;
+  S.masterDone = false;
+  S.extensionAddedSec = 0;
+  S.preheatRunning = false;
+  S.preheatStartTs = null;
+  S.preheatElapsedMs = 0;
+  S.preheatTargetSec = currentProfile().defaultPreheatSec ?? 600;
+  S.preheatAlarm = { ...(currentProfile().preheatAlarm || TIMER_PROFILES.roast.preheatAlarm), reached: false };
+  S.milestones = MS_DEFAULTS.map(d => ({ ...d, reached: false }));
+
+  loadRecipe();
+  document.getElementById('preheat-display').textContent = fmt(S.preheatTargetSec);
+  document.getElementById('ph-bar').style.transform = 'scaleX(0)';
+  document.getElementById('ph-bar').classList.remove('reached');
+  document.getElementById('master-status').textContent = '대기 중';
+  document.getElementById('master-status').className = '';
+  setRingProgress(0);
+  updateProfileUI();
+  renderMilestones();
+  syncRingAndCountdown();
+  setRoastMode();
 }
 function setRoastMode() {
   const active = (S.masterRunning || S.masterElapsed > 0) && !S.masterDone;
   document.getElementById('app').classList.toggle('roast-active', active);
+  document.body.classList.toggle('timer-active', active);
+  updateModeTabs();
 }
 function currentAction(es) {
   const idx = S.milestones.findIndex(ms => !ms.reached);
@@ -857,9 +2859,10 @@ function currentAction(es) {
 function setMasterReadout(es) {
   const labelEl = document.getElementById('master-countdown');
   const timeEl = document.getElementById('master-time');
+  const profile = currentProfile();
 
   if (S.masterDone) {
-    labelEl.textContent = '로스팅 완료';
+    labelEl.textContent = profile.doneLabel;
     labelEl.className = 'active';
     timeEl.textContent = fmtMs(S.masterElapsed || totalDuration() * 1000);
     timeEl.className = 'done';
@@ -885,7 +2888,7 @@ function setMasterReadout(es) {
     return;
   }
 
-  labelEl.textContent = '총 로스팅';
+  labelEl.textContent = profile.totalLabel;
   labelEl.className = '';
   timeEl.textContent = fmt(totalDuration());
   timeEl.className = '';
@@ -1006,6 +3009,13 @@ function clearAllAlerts() {
 function showExtModal() {
   S.extPending = false;
   S.extActive = true;
+  const profile = currentProfile();
+  document.getElementById('ext-title').textContent = profile.finishTitle;
+  document.getElementById('ext-sub').textContent = profile.finishSub;
+  document.getElementById('ext-finish').textContent = profile.finishButton;
+  document.querySelectorAll('.ext-btn').forEach(btn => {
+    btn.textContent = `${btn.dataset.mins}분 ${profile.extendVerb}`;
+  });
   openManagedModal('ext-modal', '.ext-btn');
   document.getElementById('flash-overlay').classList.add('flashing');
   startAlarm(); vibe();
@@ -1037,7 +3047,7 @@ function finishRoast() {
   _closeExtModal(); stopMaster();
   S.masterDone = true;
   setMasterReadout(S.masterElapsed / 1000);
-  document.getElementById('master-status').textContent = '🌬️ 쿨링 중';
+  document.getElementById('master-status').textContent = currentProfile().doneStatus;
   const btn = document.getElementById('start-btn');
   btn.textContent = '↻ 같은 리스트로 다시 시작';
   btn.className = 'start-btn restart';
@@ -1046,7 +3056,12 @@ function finishRoast() {
 }
 
 // ─── Confirm ──────────────────────────────────────────────────────────────────
-function askReset()    { openManagedModal('confirm-overlay', '.confirm-cancel'); }
+function askReset() {
+  const profile = currentProfile();
+  document.getElementById('confirm-title').textContent = `${profile.label} 초기화하시겠어요?`;
+  document.getElementById('confirm-desc').innerHTML = `${profile.label} 타이머와 마일스톤이<br>기본값으로 돌아갑니다.`;
+  openManagedModal('confirm-overlay', '.confirm-cancel');
+}
 function closeConfirm(){ closeManagedModal('confirm-overlay'); }
 function doReset() {
   closeConfirm();
@@ -1059,17 +3074,20 @@ function doReset() {
   S.masterElapsed = 0; S.masterStartTs = null; S.masterDone = false;
   S.extensionAddedSec = 0;
   S.milestones = MS_DEFAULTS.map(d => ({ ...d, reached: false }));
-  S.preheatTargetSec = 600;
-  setTargetTemp(DEFAULT_TARGET_TEMP);
+  S.preheatStartTs = null;
+  S.preheatElapsedMs = 0;
+  S.preheatRunning = false;
+  S.preheatTargetSec = currentProfile().defaultPreheatSec ?? 600;
+  setTargetTemp(currentProfile().defaultTargetTemp || DEFAULT_TARGET_TEMP);
+  S.preheatAlarm = { ...(currentProfile().preheatAlarm || TIMER_PROFILES.roast.preheatAlarm), reached: false };
   saveRecipe();
   setRoastMode();
 
   document.getElementById('master-status').textContent = '대기 중';
   document.getElementById('master-status').className = '';
-  const btn = document.getElementById('start-btn');
-  btn.textContent = '☕ 로스팅 시작';
-  btn.className = 'start-btn'; btn.style.cursor = '';
+  setMasterIdleButton();
   setRingProgress(0);
+  resetPreheat();
   renderMilestones();
   syncRingAndCountdown();
 }
@@ -1416,13 +3434,14 @@ function toggleDev() {
   else           { document.getElementById('dev-panel').classList.remove('open'); }
 }
 function renderDevPanel() {
+  const profile = currentProfile();
   const items = [
-    { label:'🔥 예열 완료 알람', fn: () => enqueueAlert(S.preheatAlarm) },
+    ...(profile.preheat ? [{ label:'🔥 예열 완료 알람', fn: () => enqueueAlert(S.preheatAlarm) }] : []),
     ...S.milestones.slice(0,-1).map(ms => ({
       label: `${ms.icon} ${ms.name} 알람`,
       fn: () => enqueueAlert(ms),
     })),
-    { label:'✅ 로스팅 완료 (연장 팝업)', fn: () => queueExtModal() },
+    { label:`✅ ${profile.label} 완료 (연장 팝업)`, fn: () => queueExtModal() },
   ];
   document.getElementById('dev-grid').innerHTML =
     items.map((it,i) => `<div class="dev-row">
@@ -1464,6 +3483,7 @@ document.addEventListener('keydown', e => {
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 loadRecipe();
+updateProfileUI();
 document.getElementById('preheat-display').textContent = fmt(S.preheatTargetSec);
 document.getElementById('target-temp').addEventListener('change', () => {
   setTargetTemp(getTargetTemp());
@@ -1474,6 +3494,12 @@ syncRingAndCountdown();
 document.addEventListener('visibilitychange', async () => {
   if (document.visibilityState === 'visible' && S.masterRunning) await requestWakeLock();
 });
+if (location.protocol !== 'file:') {
+  const manifestLink = document.createElement('link');
+  manifestLink.rel = 'manifest';
+  manifestLink.href = 'manifest.webmanifest';
+  document.head.appendChild(manifestLink);
+}
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./service-worker.js').catch(() => {});

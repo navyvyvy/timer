@@ -1,10 +1,13 @@
-const CACHE_NAME = 'roast-timer-v1';
+const CACHE_NAME = 'step-timer-v5';
 const ASSETS = [
   './',
   './index.html',
+  './privacy.html',
+  './contact.html',
   './README.md',
   './manifest.webmanifest',
-  './icon.svg'
+  './icon.svg',
+  './ads.txt'
 ];
 
 self.addEventListener('install', event => {
