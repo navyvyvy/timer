@@ -1,2 +1,4 @@
 .impeccable/
+.playwright-mcp/
+.tmp-chrome*/
 PRODUCT.md
