@@ -7,6 +7,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#080604">
 <title>☕ Roast Timer</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -245,7 +248,7 @@ body {
   margin-bottom: 4px;
 }
 .ph-progress-wrap { height: 2px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
-.ph-progress-bar  { height: 100%; background: var(--accent); border-radius: 99px; transition: width 0.4s linear; max-width: 100%; }
+.ph-progress-bar  { height: 100%; width: 100%; background: var(--accent); border-radius: 99px; transform-origin: left center; transform: scaleX(0); transition: transform 0.4s linear; }
 .ph-progress-bar.reached { background: var(--green-bright); }
 
 /* Adj buttons — same 6-col grid, same gap=4px → perfect alignment */
@@ -311,6 +314,7 @@ body {
 }
 #master-time.active { color: var(--accent-strong); }
 #master-time.danger { color: var(--warn); }
+#master-time.done { color: var(--green-bright); }
 #master-status {
   font-size: 12px; letter-spacing: 0.4px; text-transform: uppercase;
   color: var(--text-dim); margin-top: 5px; text-align: center;
@@ -406,7 +410,7 @@ body {
   flex-shrink: 0; text-align: center; min-width: 54px;
 }
 .ms-progress-wrap { height: 2px; background: var(--surface2); border-radius: 99px; overflow: hidden; margin-bottom: 8px; }
-.ms-progress-bar  { height: 100%; background: var(--accent); border-radius: 99px; transition: width 0.4s linear; max-width: 100%; }
+.ms-progress-bar  { height: 100%; width: 100%; background: var(--accent); border-radius: 99px; transform-origin: left center; transform: scaleX(0); transition: transform 0.4s linear; }
 .milestone-card.reached .ms-progress-bar { background: var(--green); }
 
 /* 삭제 버튼 */
@@ -631,7 +635,7 @@ body {
     <!-- progress bar full width -->
     <div class="ph-progress-row">
       <div class="ph-progress-wrap">
-        <div class="ph-progress-bar" id="ph-bar" style="width:0%"></div>
+        <div class="ph-progress-bar" id="ph-bar"></div>
       </div>
     </div>
 
@@ -692,6 +696,8 @@ body {
 // ─── 상수 ────────────────────────────────────────────────────────────────────
 const ALARM_INTERVAL_MS  = 1800;
 const RING_DANGER_THRESH = 0.88;
+const RECIPE_STORAGE_KEY = 'roast-timer:recipe:v1';
+const DEFAULT_TARGET_TEMP = 220;
 
 // durationSec = 각 구간 시간 (독립)
 // 알람 발화 시점 = 앞 구간들의 합 (누적)
@@ -745,6 +751,8 @@ const S = {
   extActive: false,
   extPending: false,
   devMode: false,
+  activeModalId: null,
+  lastFocusedEl: null,
   rafId: null,
   wakeLock: null,
   wakeLockSupported: ('wakeLock' in navigator),
@@ -776,6 +784,65 @@ function htmlEscape(value) {
     '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
   }[ch]));
 }
+function clampInt(value, min, max, fallback) {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return fallback;
+  return Math.min(max, Math.max(min, Math.round(num)));
+}
+function normalizeMilestone(item, idx) {
+  const fallback = MS_DEFAULTS[Math.min(idx, MS_DEFAULTS.length - 1)] || MS_DEFAULTS[0];
+  const name = String(item?.name || fallback.name).trim().slice(0, 20) || fallback.name;
+  const icon = String(item?.icon || fallback.icon).trim().slice(0, 4) || fallback.icon;
+  const emoji = String(item?.emoji || icon || fallback.emoji).trim().slice(0, 4) || fallback.emoji;
+  const durationSec = clampInt(item?.durationSec, 10, 60 * 60, fallback.durationSec);
+  return {
+    name,
+    icon,
+    durationSec,
+    reached: false,
+    emoji,
+    alertMsg: String(item?.alertMsg || `${name} 시간이 되었습니다.`).slice(0, 120),
+    actionLabel: String(item?.actionLabel || `${name} 완료`).slice(0, 40),
+  };
+}
+function setTargetTemp(value) {
+  const input = document.getElementById('target-temp');
+  input.value = clampInt(value, 100, 300, DEFAULT_TARGET_TEMP);
+}
+function getTargetTemp() {
+  return clampInt(document.getElementById('target-temp').value, 100, 300, DEFAULT_TARGET_TEMP);
+}
+function saveRecipe() {
+  try {
+    localStorage.setItem(RECIPE_STORAGE_KEY, JSON.stringify({
+      preheatTargetSec: S.preheatTargetSec,
+      targetTemp: getTargetTemp(),
+      milestones: S.milestones.map(ms => ({
+        name: ms.name,
+        icon: ms.icon,
+        durationSec: ms.durationSec,
+        emoji: ms.emoji,
+        alertMsg: ms.alertMsg,
+        actionLabel: ms.actionLabel,
+      })),
+    }));
+  } catch(e) {}
+}
+function loadRecipe() {
+  try {
+    const raw = localStorage.getItem(RECIPE_STORAGE_KEY);
+    if (!raw) { setTargetTemp(DEFAULT_TARGET_TEMP); return; }
+    const saved = JSON.parse(raw);
+    S.preheatTargetSec = clampInt(saved.preheatTargetSec, 30, 60 * 60, S.preheatTargetSec);
+    setTargetTemp(saved.targetTemp);
+    if (Array.isArray(saved.milestones) && saved.milestones.length) {
+      S.milestones = saved.milestones.slice(0, 12).map(normalizeMilestone);
+      if (S.milestones.length === 1) S.milestones.push(normalizeMilestone(MS_DEFAULTS[2], 2));
+    }
+  } catch(e) {
+    setTargetTemp(DEFAULT_TARGET_TEMP);
+  }
+}
 function setRoastMode() {
   const active = (S.masterRunning || S.masterElapsed > 0) && !S.masterDone;
   document.getElementById('app').classList.toggle('roast-active', active);
@@ -792,10 +859,10 @@ function setMasterReadout(es) {
   const timeEl = document.getElementById('master-time');
 
   if (S.masterDone) {
-    labelEl.textContent = '쿨링';
-    labelEl.className = '';
-    timeEl.textContent = '00:00';
-    timeEl.className = '';
+    labelEl.textContent = '로스팅 완료';
+    labelEl.className = 'active';
+    timeEl.textContent = fmtMs(S.masterElapsed || totalDuration() * 1000);
+    timeEl.className = 'done';
     return;
   }
 
@@ -830,6 +897,29 @@ function updateMasterReference() {
     ? `총 시간 ${fmt(totalDuration())} · +${Math.round(added / 60)}분 추가됨`
     : `총 시간 ${fmt(totalDuration())}`;
   refEl.classList.toggle('extended', added > 0);
+}
+function focusableIn(root) {
+  return [...root.querySelectorAll('button, input, [href], [tabindex]:not([tabindex="-1"])')]
+    .filter(el => !el.disabled && el.offsetParent !== null);
+}
+function openManagedModal(id, focusSelector) {
+  const modal = document.getElementById(id);
+  if (!S.activeModalId) S.lastFocusedEl = document.activeElement;
+  modal.classList.add('active');
+  S.activeModalId = id;
+  requestAnimationFrame(() => {
+    const target = focusSelector ? modal.querySelector(focusSelector) : focusableIn(modal)[0];
+    if (target) target.focus({ preventScroll: true });
+  });
+}
+function closeManagedModal(id) {
+  const modal = document.getElementById(id);
+  modal.classList.remove('active');
+  if (S.activeModalId === id) S.activeModalId = null;
+  if (!S.activeModalId && S.lastFocusedEl && typeof S.lastFocusedEl.focus === 'function') {
+    S.lastFocusedEl.focus({ preventScroll: true });
+    S.lastFocusedEl = null;
+  }
 }
 
 // ─── Audio ────────────────────────────────────────────────────────────────────
@@ -891,13 +981,13 @@ function _showNextAlert() {
     : `🚨 ${ms.name} 알람`;
   document.getElementById('alert-msg').textContent   = ms.alertMsg;
   document.getElementById('alert-dismiss').textContent = ms.actionLabel || `${ms.name} 확인`;
-  document.getElementById('alert-modal').classList.add('active');
+  openManagedModal('alert-modal', '#alert-dismiss');
   document.getElementById('flash-overlay').classList.add('flashing');
   startAlarm(); vibe();
 }
 function dismissAlert() {
   S.alertActive = false;
-  document.getElementById('alert-modal').classList.remove('active');
+  closeManagedModal('alert-modal');
   stopAlarm();
   if (navigator.vibrate) navigator.vibrate(0);
   if (S.alertQueue.length) _showNextAlert();
@@ -906,7 +996,7 @@ function dismissAlert() {
 }
 function clearAllAlerts() {
   S.alertQueue = []; S.alertActive = false; S.extPending = false;
-  document.getElementById('alert-modal').classList.remove('active');
+  closeManagedModal('alert-modal');
   document.getElementById('flash-overlay').classList.remove('flashing');
   stopAlarm();
   if (navigator.vibrate) navigator.vibrate(0);
@@ -916,7 +1006,7 @@ function clearAllAlerts() {
 function showExtModal() {
   S.extPending = false;
   S.extActive = true;
-  document.getElementById('ext-modal').classList.add('active');
+  openManagedModal('ext-modal', '.ext-btn');
   document.getElementById('flash-overlay').classList.add('flashing');
   startAlarm(); vibe();
 }
@@ -926,7 +1016,7 @@ function queueExtModal() {
 }
 function _closeExtModal() {
   S.extActive = false;
-  document.getElementById('ext-modal').classList.remove('active');
+  closeManagedModal('ext-modal');
   document.getElementById('flash-overlay').classList.remove('flashing');
   stopAlarm();
 }
@@ -938,6 +1028,7 @@ function extendRoast(mins) {
   lastMs().durationSec += Math.max(addSec, neededSec);
   S.extensionAddedSec += addSec;
   lastMs().reached = false;
+  saveRecipe();
   _closeExtModal();
   syncRingAndCountdown();
   renderMilestones();
@@ -955,8 +1046,8 @@ function finishRoast() {
 }
 
 // ─── Confirm ──────────────────────────────────────────────────────────────────
-function askReset()    { document.getElementById('confirm-overlay').classList.add('active'); }
-function closeConfirm(){ document.getElementById('confirm-overlay').classList.remove('active'); }
+function askReset()    { openManagedModal('confirm-overlay', '.confirm-cancel'); }
+function closeConfirm(){ closeManagedModal('confirm-overlay'); }
 function doReset() {
   closeConfirm();
   S.masterRunning = false;
@@ -968,6 +1059,9 @@ function doReset() {
   S.masterElapsed = 0; S.masterStartTs = null; S.masterDone = false;
   S.extensionAddedSec = 0;
   S.milestones = MS_DEFAULTS.map(d => ({ ...d, reached: false }));
+  S.preheatTargetSec = 600;
+  setTargetTemp(DEFAULT_TARGET_TEMP);
+  saveRecipe();
   setRoastMode();
 
   document.getElementById('master-status').textContent = '대기 중';
@@ -1097,7 +1191,7 @@ function updateMilestoneProgress(es) {
     const pct     = Math.min(100, Math.max(0, (segEl / ms.durationSec) * 100));
 
     const bar = document.getElementById(`ms-bar-${i}`);
-    if (bar) bar.style.width = pct + '%';
+    if (bar) bar.style.transform = `scaleX(${pct / 100})`;
 
     const tel = document.getElementById(`ms-time-${i}`);
     if (tel) {
@@ -1145,7 +1239,7 @@ function updatePreheatUI(now) {
   dispEl.textContent = fmt(remaining);
   dispEl.className   = 'ph-time-big' + (done ? ' done' : ' running');
   const bar = document.getElementById('ph-bar');
-  bar.style.width = pct + '%';
+  bar.style.transform = `scaleX(${pct / 100})`;
   bar.classList.toggle('reached', done);
   if (!S.preheatAlarm.reached && done) {
     S.preheatAlarm.reached = true;
@@ -1163,7 +1257,7 @@ function resetPreheat() {
   if (wasRunning && !isAnyTimerRunning()) { cancelAnimationFrame(S.rafId); S.rafId = null; }
   const d = document.getElementById('preheat-display');
   d.textContent = fmt(S.preheatTargetSec); d.className = 'ph-time-big';
-  document.getElementById('ph-bar').style.width = '0%';
+  document.getElementById('ph-bar').style.transform = 'scaleX(0)';
   document.getElementById('ph-bar').classList.remove('reached');
   const btn = document.getElementById('ph-start');
   btn.textContent = '시작'; btn.classList.remove('active');
@@ -1172,6 +1266,7 @@ function adjustPreheat(delta) {
   const nv = S.preheatTargetSec + delta;
   if (nv < 30) return;
   S.preheatTargetSec = nv;
+  saveRecipe();
   if (S.preheatRunning) {
     const elapsed = (Date.now() - S.preheatStartTs) / 1000;
     if (elapsed < nv) S.preheatAlarm.reached = false;
@@ -1195,7 +1290,12 @@ function startRename(idx, spanEl) {
   function commit() {
     if (committed) return; committed = true;
     const val = input.value.trim();
-    if (val) { S.milestones[idx].name = val; S.milestones[idx].alertMsg = `${val} 시간이 되었습니다.`; }
+    if (val) {
+      S.milestones[idx].name = val;
+      S.milestones[idx].alertMsg = `${val} 시간이 되었습니다.`;
+      S.milestones[idx].actionLabel = `${val} 완료`;
+      saveRecipe();
+    }
     const span = document.createElement('span');
     span.className = 'ms-name'; span.title = '탭해서 이름 변경';
     span.textContent = S.milestones[idx].name;
@@ -1217,6 +1317,7 @@ function adjustMilestone(idx, delta) {
   if (nv < 10) return;
   ms.durationSec = nv;
   // 각 타이머는 독립 — 전체 시간은 합산으로 자동 반영
+  saveRecipe();
   renderMilestones();
   syncRingAndCountdown();
 }
@@ -1266,7 +1367,7 @@ function renderMilestones() {
           ${canDelete ? `<button class="ms-delete-btn" onclick="deleteMilestone(${i})" title="삭제" aria-label="${safeName} 삭제">×</button>` : ''}
         </div>
         <div class="ms-progress-wrap">
-          <div class="ms-progress-bar" id="ms-bar-${i}" style="width:0%"></div>
+          <div class="ms-progress-bar" id="ms-bar-${i}"></div>
         </div>
         <div class="adj-grid-6">
           <button class="adj-btn minus" onclick="adjustMilestone(${i},-60)" ${dis}>−1분</button>
@@ -1291,6 +1392,7 @@ function addMilestone() {
     alertMsg: `${newName} 시간이 되었습니다.`,
     actionLabel: `${newName} 완료`,
   });
+  saveRecipe();
   renderMilestones();
   syncRingAndCountdown();
 }
@@ -1300,6 +1402,7 @@ function deleteMilestone(idx) {
   if (!ms || S.milestones.length <= 1 || idx === lastMsIdx() || ms.reached) return;
   S.alertQueue = S.alertQueue.filter(a => a !== S.milestones[idx]);
   S.milestones.splice(idx, 1);
+  saveRecipe();
   renderMilestones();
   syncRingAndCountdown();
 }
@@ -1334,12 +1437,48 @@ function renderDevPanel() {
   };
 }
 
+document.addEventListener('keydown', e => {
+  if (!S.activeModalId) return;
+  const modal = document.getElementById(S.activeModalId);
+  if (!modal) return;
+
+  if (e.key === 'Escape' && S.activeModalId === 'confirm-overlay') {
+    e.preventDefault();
+    closeConfirm();
+    return;
+  }
+
+  if (e.key !== 'Tab') return;
+  const items = focusableIn(modal);
+  if (!items.length) return;
+  const first = items[0];
+  const last = items[items.length - 1];
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault();
+    first.focus();
+  }
+});
+
 // ─── Init ─────────────────────────────────────────────────────────────────────
+loadRecipe();
+document.getElementById('preheat-display').textContent = fmt(S.preheatTargetSec);
+document.getElementById('target-temp').addEventListener('change', () => {
+  setTargetTemp(getTargetTemp());
+  saveRecipe();
+});
 renderMilestones();
 syncRingAndCountdown();
 document.addEventListener('visibilitychange', async () => {
   if (document.visibilityState === 'visible' && S.masterRunning) await requestWakeLock();
 });
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+  });
+}
 </script>
 </body>
 </html>

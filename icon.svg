@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Roast Timer">
+  <rect width="512" height="512" rx="112" fill="#080604"/>
+  <circle cx="256" cy="256" r="174" fill="#17110c" stroke="#ffb24a" stroke-width="28"/>
+  <path d="M256 112a144 144 0 0 1 144 144" fill="none" stroke="#ffd07a" stroke-width="28" stroke-linecap="round"/>
+  <path d="M256 256l76-64" fill="none" stroke="#fff4e2" stroke-width="26" stroke-linecap="round"/>
+  <path d="M256 256v96" fill="none" stroke="#fff4e2" stroke-width="26" stroke-linecap="round"/>
+  <circle cx="256" cy="256" r="20" fill="#ffb24a"/>
+  <path d="M176 392c36 28 124 28 160 0" fill="none" stroke="#7eff9d" stroke-width="20" stroke-linecap="round"/>
+</svg>

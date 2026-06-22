@@ -1,0 +1,19 @@
+{
+  "name": "Roast Timer",
+  "short_name": "Roast Timer",
+  "description": "Coffee roasting timer for preheat, milestones, alerts, and cooling.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#080604",
+  "theme_color": "#080604",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
