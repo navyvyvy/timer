@@ -518,8 +518,15 @@ body[data-profile="egg"] .preset-detail {
   padding: 8px;
   gap: 4px;
 }
+body[data-profile="roast"] .preset-detail {
+  gap: 5px;
+}
 body[data-profile="egg"] #preset-name {
   font-size: 13px;
+}
+body[data-profile="roast"] #preset-guide {
+  min-height: 70px;
+  max-height: 96px;
 }
 body[data-profile="egg"] .preset-detail-meta {
   gap: 3px;
@@ -2158,6 +2165,304 @@ function eggMilestones(id = selectedEggPresetId, cold = selectedEggCold) {
   return eggStepsFor(eggPresetById(id), cold).map(step => ({ ...step }));
 }
 
+function roastMilestones(drySec, browningSec, developmentSec) {
+  return [
+    {
+      name: '건조',
+      icon: '🌿',
+      durationSec: drySec,
+      emoji: '🌿',
+      alertMsg: '건조 구간입니다. 색과 향을 확인해 주세요.',
+      actionLabel: '건조 확인',
+    },
+    {
+      name: '갈변',
+      icon: '🔥',
+      durationSec: browningSec,
+      emoji: '🔥',
+      alertMsg: '갈변 구간입니다. 향과 색 변화를 확인해 주세요.',
+      actionLabel: '갈변 확인',
+    },
+    {
+      name: '개발',
+      icon: '☕',
+      durationSec: developmentSec,
+      emoji: '☕',
+      alertMsg: '개발 구간입니다. 배출 타이밍을 확인해 주세요.',
+      actionLabel: '개발 확인',
+    },
+  ];
+}
+
+const ROAST_PRESETS = [
+  {
+    id: 'ethiopia-yirgacheffe-washed',
+    originCountry: '에티오피아',
+    originRegion: '예가체프',
+    originGroup: '아프리카',
+    name: '예가체프 워시드',
+    variety: '아라비카 워시드',
+    roastLevel: 'light',
+    process: '워시드',
+    chargeTemp: 195,
+    preheatTemp: 205,
+    preheatSec: 600,
+    milestones: roastMilestones(300, 180, 90),
+    guide: '예열 205°C 전후, 투입 195°C 전후, 1차 크랙은 7분 안팎, 총 9분 30초가 출발점입니다. 자스민, 레몬, 홍차, 복숭아 같은 밝은 향을 노려 보세요.',
+    sourceLabel: '원산지 개요',
+    sourceUrl: 'https://en.wikipedia.org/wiki/Coffee_production_in_Ethiopia',
+  },
+  {
+    id: 'colombia-supremo-washed',
+    originCountry: '콜롬비아',
+    originRegion: '후일라',
+    originGroup: '중남미',
+    name: '수프리모 워시드',
+    variety: '카투라/카스티요',
+    roastLevel: 'medium',
+    process: '워시드',
+    chargeTemp: 199,
+    preheatTemp: 208,
+    preheatSec: 630,
+    milestones: roastMilestones(320, 190, 120),
+    guide: '예열 208°C 전후, 투입 199°C 전후, 1차 크랙은 7분 30초 안팎, 총 10분 30초를 기본값으로 두면 좋습니다. 캐러멜, 코코아, 사과, 견과류가 균형 있게 나옵니다.',
+    sourceLabel: '원산지 개요',
+    sourceUrl: 'https://en.wikipedia.org/wiki/Colombian_coffee',
+  },
+  {
+    id: 'kenya-aa-washed',
+    originCountry: '케냐',
+    originRegion: '니에리',
+    originGroup: '아프리카',
+    name: 'AA 워시드',
+    variety: 'SL28/SL34',
+    roastLevel: 'light',
+    process: '워시드',
+    chargeTemp: 197,
+    preheatTemp: 206,
+    preheatSec: 600,
+    milestones: roastMilestones(310, 190, 100),
+    guide: '예열 206°C 전후, 투입 197°C 전후, 1차 크랙은 7분 20초 안팎, 총 10분 정도가 무난합니다. 블랙커런트, 자몽, 토마토, 와인 같은 선명한 산미가 살아납니다.',
+    sourceLabel: '원산지 개요',
+    sourceUrl: 'https://en.wikipedia.org/wiki/Kenyan_coffee',
+  },
+  {
+    id: 'guatemala-antigua-washed',
+    originCountry: '과테말라',
+    originRegion: '안티구아',
+    originGroup: '중남미',
+    name: '안티구아 워시드',
+    variety: '부르봉/카투라',
+    roastLevel: 'medium',
+    process: '워시드',
+    chargeTemp: 200,
+    preheatTemp: 210,
+    preheatSec: 630,
+    milestones: roastMilestones(325, 195, 125),
+    guide: '예열 210°C 전후, 투입 200°C 전후, 1차 크랙은 7분 40초 안팎, 총 10분 45초 전후가 무난합니다. 초콜릿, 스파이스, 아몬드, 오렌지 껍질 같은 묵직한 단맛이 잘 나옵니다.',
+    sourceLabel: '원산지 개요',
+    sourceUrl: 'https://en.wikipedia.org/wiki/Guatemalan_coffee',
+  },
+  {
+    id: 'brazil-santos-natural',
+    originCountry: '브라질',
+    originRegion: '산토스',
+    originGroup: '중남미',
+    name: '산토스 내추럴',
+    variety: '아라비카 내추럴',
+    roastLevel: 'medium',
+    process: '내추럴',
+    chargeTemp: 201,
+    preheatTemp: 212,
+    preheatSec: 660,
+    milestones: roastMilestones(330, 210, 120),
+    guide: '예열 212°C 전후, 투입 201°C 전후, 1차 크랙은 8분 안팎, 총 11분 전후가 출발점입니다. 초콜릿, 헤이즐넛, 아몬드, 낮은 산미의 둥근 바디감이 강점입니다.',
+    sourceLabel: '원산지 개요',
+    sourceUrl: 'https://en.wikipedia.org/wiki/Brazilian_coffee',
+  },
+  {
+    id: 'costa-rica-tarrazu-honey',
+    originCountry: '코스타리카',
+    originRegion: '따라주',
+    originGroup: '중남미',
+    name: '따라주 허니',
+    variety: '카투라 허니',
+    roastLevel: 'medium',
+    process: '허니',
+    chargeTemp: 198,
+    preheatTemp: 209,
+    preheatSec: 630,
+    milestones: roastMilestones(315, 190, 110),
+    guide: '예열 209°C 전후, 투입 198°C 전후, 1차 크랙은 7분 50초 안팎, 총 10분 15초 전후가 무난합니다. 꿀, 황설탕, 레몬 제스트, 아몬드 같은 깨끗한 단맛을 기대할 수 있습니다.',
+    sourceLabel: '원산지 개요',
+    sourceUrl: 'https://en.wikipedia.org/wiki/Costa_Rican_coffee',
+  },
+  {
+    id: 'panama-geisha-washed',
+    originCountry: '파나마',
+    originRegion: '보케테',
+    originGroup: '중남미',
+    name: '게이샤 워시드',
+    variety: '게이샤',
+    roastLevel: 'light',
+    process: '워시드',
+    chargeTemp: 193,
+    preheatTemp: 203,
+    preheatSec: 570,
+    milestones: roastMilestones(285, 180, 90),
+    guide: '예열 203°C 전후, 투입 193°C 전후, 1차 크랙은 7분 안팎, 총 9분 15초 전후가 무난합니다. 자스민, 베르가못, 복숭아, 꿀 같은 화사한 향이 핵심입니다.',
+    sourceLabel: '원산지 개요',
+    sourceUrl: 'https://en.wikipedia.org/wiki/Geisha_coffee',
+  },
+  {
+    id: 'ethiopia-guji-natural',
+    originCountry: '에티오피아',
+    originRegion: '구지',
+    originGroup: '아프리카',
+    name: '구지 내추럴',
+    variety: '아라비카 내추럴',
+    roastLevel: 'light',
+    process: '내추럴',
+    chargeTemp: 194,
+    preheatTemp: 204,
+    preheatSec: 600,
+    milestones: roastMilestones(285, 190, 110),
+    guide: '예열 204°C 전후, 투입 194°C 전후, 1차 크랙은 7분 10초 안팎, 총 9분 45초 전후가 출발점입니다. 베리, 포도, 블루베리, 열대과일의 달콤한 향을 살리기 좋습니다.',
+    sourceLabel: '원산지 개요',
+    sourceUrl: 'https://en.wikipedia.org/wiki/Coffee_production_in_Ethiopia',
+  },
+  {
+    id: 'honduras-shg-washed',
+    originCountry: '온두라스',
+    originRegion: '마르칼라',
+    originGroup: '중남미',
+    name: 'SHG 워시드',
+    variety: '아라비카 워시드',
+    roastLevel: 'medium',
+    process: '워시드',
+    chargeTemp: 199,
+    preheatTemp: 210,
+    preheatSec: 630,
+    milestones: roastMilestones(320, 190, 120),
+    guide: '예열 210°C 전후, 투입 199°C 전후, 1차 크랙은 7분 40초 안팎, 총 10분 30초 전후가 무난합니다. 카라멜, 바닐라, 살구, 헤이즐넛 계열이 부드럽게 나옵니다.',
+    sourceLabel: '원산지 개요',
+    sourceUrl: 'https://en.wikipedia.org/wiki/Honduran_coffee',
+  },
+  {
+    id: 'peru-organic-washed',
+    originCountry: '페루',
+    originRegion: '카하마르카',
+    originGroup: '중남미',
+    name: '오가닉 워시드',
+    variety: '아라비카 워시드',
+    roastLevel: 'medium',
+    process: '워시드',
+    chargeTemp: 198,
+    preheatTemp: 208,
+    preheatSec: 630,
+    milestones: roastMilestones(325, 200, 120),
+    guide: '예열 208°C 전후, 투입 198°C 전후, 1차 크랙은 7분 50초 안팎, 총 10분 45초 전후가 무난합니다. 코코아, 사과, 토스트, 견과류 같은 깨끗한 맛이 잘 납니다.',
+    sourceLabel: '원산지 개요',
+    sourceUrl: 'https://en.wikipedia.org/wiki/Peruvian_coffee',
+  },
+  {
+    id: 'rwanda-washed',
+    originCountry: '르완다',
+    originRegion: '니야마셰케',
+    originGroup: '아프리카',
+    name: '워시드',
+    variety: '버본 워시드',
+    roastLevel: 'light',
+    process: '워시드',
+    chargeTemp: 196,
+    preheatTemp: 206,
+    preheatSec: 600,
+    milestones: roastMilestones(305, 185, 110),
+    guide: '예열 206°C 전후, 투입 196°C 전후, 1차 크랙은 7분 20초 안팎, 총 10분 전후가 기본값입니다. 레드애플, 베르가못, 홍차, 사탕수수 같은 산뜻한 향이 잘 드러납니다.',
+    sourceLabel: '원산지 개요',
+    sourceUrl: 'https://en.wikipedia.org/wiki/Rwandan_coffee',
+  },
+  {
+    id: 'sumatra-mandheling-wet-hulled',
+    originCountry: '인도네시아',
+    originRegion: '수마트라',
+    originGroup: '아시아',
+    name: '만델링 웻헐드',
+    variety: '만델링 웻헐드',
+    roastLevel: 'dark',
+    process: '웻헐드',
+    chargeTemp: 204,
+    preheatTemp: 214,
+    preheatSec: 690,
+    milestones: roastMilestones(345, 225, 120),
+    guide: '예열 214°C 전후, 투입 204°C 전후, 1차 크랙은 8분 20초 안팎, 총 11분 30초 전후가 무난합니다. 흙내음, 우드, 다크초콜릿, 허브 계열의 묵직한 바디가 중심입니다.',
+    sourceLabel: '원산지 개요',
+    sourceUrl: 'https://en.wikipedia.org/wiki/Indonesian_coffee',
+  },
+];
+const ROAST_POPULARITY = Object.fromEntries(
+  ROAST_PRESETS.map((preset, idx) => [preset.id, ROAST_PRESETS.length - idx])
+);
+const ROAST_FILTER_STORAGE_KEY = 'step-timer:roast-filter:v1';
+function roastPresetById(id) {
+  return ROAST_PRESETS.find(preset => preset.id === id) || ROAST_PRESETS[0];
+}
+function roastTotalSec(preset) {
+  return preset.milestones.reduce((sum, step) => sum + step.durationSec, 0);
+}
+function roastLevelLabel(level) {
+  return level === 'medium' ? '중배전' : level === 'dark' ? '강배전' : '약배전';
+}
+function roastSortScore(preset) {
+  return ROAST_POPULARITY[preset.id] || 0;
+}
+function loadRoastFilterState() {
+  const fallback = { originGroup: 'all', level: 'all', process: 'all', sort: 'popular' };
+  try {
+    const raw = localStorage.getItem(ROAST_FILTER_STORAGE_KEY);
+    if (!raw) return fallback;
+    return normalizeRoastFilterState(JSON.parse(raw));
+  } catch(e) {}
+  return fallback;
+}
+function normalizeRoastFilterState(value) {
+  const levelList = new Set(['all', 'light', 'medium', 'dark']);
+  const originList = new Set(['all', ...ROAST_PRESETS.map(p => p.originGroup)]);
+  const processList = new Set(['all', ...ROAST_PRESETS.map(p => p.process)]);
+  const level = value && levelList.has(value.level) ? value.level : 'all';
+  const originGroup = value && originList.has(value.originGroup) ? value.originGroup : 'all';
+  const process = value && processList.has(value.process) ? value.process : 'all';
+  const sort = value && ['popular', 'alpha'].includes(value.sort) ? value.sort : 'popular';
+  return { originGroup, level, process, sort };
+}
+function saveRoastFilterState() {
+  try {
+    localStorage.setItem(ROAST_FILTER_STORAGE_KEY, JSON.stringify(roastFilterState));
+  } catch(e) {}
+}
+function filteredRoastPresets() {
+  return ROAST_PRESETS.filter(preset => {
+    if (roastFilterState.level !== 'all' && preset.roastLevel !== roastFilterState.level) return false;
+    if (roastFilterState.originGroup !== 'all' && preset.originGroup !== roastFilterState.originGroup) return false;
+    if (roastFilterState.process !== 'all' && preset.process !== roastFilterState.process) return false;
+    return true;
+  }).sort((a, b) => {
+    if (roastFilterState.sort === 'alpha') {
+      const nameOrder = a.name.localeCompare(b.name, 'ko');
+      if (nameOrder !== 0) return nameOrder;
+      const countryOrder = a.originCountry.localeCompare(b.originCountry, 'ko');
+      if (countryOrder !== 0) return countryOrder;
+      return roastTotalSec(a) - roastTotalSec(b);
+    }
+    const scoreA = roastSortScore(a);
+    const scoreB = roastSortScore(b);
+    if (scoreA !== scoreB) return scoreB - scoreA;
+    const countryOrder = a.originCountry.localeCompare(b.originCountry, 'ko');
+    if (countryOrder !== 0) return countryOrder;
+    return a.name.localeCompare(b.name, 'ko');
+  });
+}
+
 // durationSec = 각 구간 시간 (독립)
 // 알람 발화 시점 = 앞 구간들의 합 (누적)
 const TIMER_PROFILES = {
@@ -2180,24 +2485,14 @@ const TIMER_PROFILES = {
       { label: '+6분', sec: 360 },
     ],
     preheat: true,
-    defaultPreheatSec: 600,
-    defaultTargetTemp: 220,
+    defaultPreheatSec: ROAST_PRESETS[0].preheatSec,
+    defaultTargetTemp: ROAST_PRESETS[0].preheatTemp,
     preheatAlarm: {
       emoji:'🔥', name:'예열 완료',
       alertMsg:'예열이 완료되었습니다. 원두를 투입할 준비를 하세요!',
       actionLabel:'예열 완료 확인',
     },
-    milestones: [
-      { name:'뒤집기',      icon:'🔄', durationSec: 300,
-        emoji:'🔄', alertMsg:'원두를 뒤집어 주세요! 균일한 로스팅을 위해 고르게 섞어 주세요.',
-        actionLabel:'뒤집기 완료' },
-      { name:'상태 체크',   icon:'👁️', durationSec: 300,
-        emoji:'👁️', alertMsg:'원두 색상과 팝핑 소리를 확인해 주세요.',
-        actionLabel:'상태 체크 완료' },
-      { name:'로스팅 완료', icon:'✅', durationSec: 120,
-        emoji:'✅', alertMsg:'목표 시간에 도달했습니다!',
-        actionLabel:'완료 확인' },
-    ],
+    milestones: ROAST_PRESETS[0].milestones.map(ms => ({ ...ms })),
   },
   mandu: {
     label: '만두',
@@ -2281,12 +2576,15 @@ const TIMER_PROFILES = {
 };
 
 let activeProfileId = loadActiveProfileId();
+let selectedRoastPresetId = ROAST_PRESETS[0].id;
 let selectedRamenPresetId = loadSelectedRamenPresetId();
 let selectedManduPresetId = loadSelectedManduPresetId();
 let selectedManduFrozen = loadSelectedManduFrozen();
 let eggState = loadSelectedEggState();
 let selectedEggPresetId = eggState.selectedPresetId;
 let selectedEggCold = eggState.cold;
+let roastFilterState = loadRoastFilterState();
+let roastListScrollMode = null;
 let ramenFilterState = loadRamenFilterState();
 let ramenFavoriteIds = loadRamenFavorites();
 let ramenListScrollMode = null;
@@ -2328,6 +2626,7 @@ function currentProfile() {
   return TIMER_PROFILES[activeProfileId] || TIMER_PROFILES.roast;
 }
 function defaultMilestonesFor(id = activeProfileId) {
+  if (id === 'roast') return roastPresetById(selectedRoastPresetId).milestones.map(ms => ({ ...ms }));
   if (id === 'ramen') return ramenMilestones();
   if (id === 'mandu') return manduMilestones();
   if (id === 'egg') return eggMilestones();
@@ -2522,6 +2821,7 @@ function saveRecipe() {
         actionLabel: ms.actionLabel,
       })),
     };
+    if (activeProfileId === 'roast') payload.selectedPresetId = selectedRoastPresetId;
     if (activeProfileId === 'ramen') payload.selectedPresetId = selectedRamenPresetId;
     if (activeProfileId === 'mandu') {
       payload.selectedPresetId = selectedManduPresetId;
@@ -2538,8 +2838,22 @@ function loadRecipe() {
   try {
     const raw = localStorage.getItem(recipeKey()) ||
       (activeProfileId === 'roast' ? localStorage.getItem(LEGACY_RECIPE_STORAGE_KEY) : null);
-    if (!raw) { setTargetTemp(currentProfile().defaultTargetTemp || DEFAULT_TARGET_TEMP); return; }
+    if (!raw) {
+      if (activeProfileId === 'roast') {
+        const roastPreset = roastPresetById(selectedRoastPresetId);
+        S.preheatTargetSec = roastPreset.preheatSec;
+        setTargetTemp(roastPreset.preheatTemp);
+      } else {
+        setTargetTemp(currentProfile().defaultTargetTemp || DEFAULT_TARGET_TEMP);
+      }
+      return;
+    }
     const saved = JSON.parse(raw);
+    if (activeProfileId === 'roast' && saved.selectedPresetId && roastPresetById(saved.selectedPresetId).id === saved.selectedPresetId) {
+      selectedRoastPresetId = saved.selectedPresetId;
+      MS_DEFAULTS = defaultMilestonesFor(activeProfileId);
+      S.milestones = MS_DEFAULTS.map(d => ({ ...d, reached: false }));
+    }
     if (activeProfileId === 'ramen' && saved.selectedPresetId && ramenPresetById(saved.selectedPresetId).id === saved.selectedPresetId) {
       setSelectedRamenPreset(saved.selectedPresetId);
       MS_DEFAULTS = defaultMilestonesFor(activeProfileId);
@@ -2563,8 +2877,14 @@ function loadRecipe() {
       MS_DEFAULTS = defaultMilestonesFor(activeProfileId);
       S.milestones = MS_DEFAULTS.map(d => ({ ...d, reached: false }));
     }
-    S.preheatTargetSec = clampInt(saved.preheatTargetSec, 30, 60 * 60, S.preheatTargetSec);
-    setTargetTemp(saved.targetTemp);
+    const roastPreset = roastPresetById(selectedRoastPresetId);
+    if (activeProfileId === 'roast') {
+      S.preheatTargetSec = clampInt(saved.preheatTargetSec, 30, 60 * 60, roastPreset.preheatSec);
+      setTargetTemp(clampInt(saved.targetTemp, 100, 300, roastPreset.preheatTemp));
+    } else {
+      S.preheatTargetSec = clampInt(saved.preheatTargetSec, 30, 60 * 60, S.preheatTargetSec);
+      setTargetTemp(saved.targetTemp);
+    }
     if (Array.isArray(saved.milestones) && saved.milestones.length) {
       S.milestones = saved.milestones.slice(0, 12).map(normalizeMilestone);
     }
@@ -3092,34 +3412,205 @@ function applyCurrentManduPreset() {
 function selectManduPreset(id) {
   applyManduPreset(id);
 }
+function renderRoastFilterControls() {
+  const kindWrap = document.getElementById('preset-kind-filters');
+  const brandWrap = document.getElementById('preset-brand-filters');
+  const sortWrap = document.getElementById('preset-sort-filters');
+  const stateWrap = document.getElementById('preset-state-filters');
+  const favoritesToggle = document.getElementById('preset-favorites-toggle');
+
+  if (!kindWrap || !brandWrap || !sortWrap || !stateWrap || !favoritesToggle) return;
+  kindWrap.hidden = false;
+  brandWrap.hidden = false;
+  sortWrap.hidden = false;
+  stateWrap.hidden = false;
+  favoritesToggle.hidden = true;
+  favoritesToggle.classList.remove('fav-on');
+  favoritesToggle.textContent = '☆ 즐겨찾기만';
+
+  const kindOptions = [
+    { id: 'all', label: '전체' },
+    { id: 'light', label: '약배전' },
+    { id: 'medium', label: '중배전' },
+    { id: 'dark', label: '강배전' },
+  ];
+  const originOptions = ['all', ...new Set(ROAST_PRESETS.map(p => p.originGroup))];
+  const sortOptions = [
+    { id: 'popular', label: '추천순' },
+    { id: 'alpha', label: '가나다순' },
+  ];
+  const processOptions = ['all', ...new Set(ROAST_PRESETS.map(p => p.process))];
+
+  kindWrap.innerHTML = kindOptions.map(opt =>
+    `<button class="preset-chip ${roastFilterState.level === opt.id ? 'active' : ''}" type="button" onclick="setRoastFilter('level', '${opt.id}')">${htmlEscape(opt.label)}</button>`
+  ).join('');
+
+  brandWrap.innerHTML = originOptions.map(origin => {
+    const label = origin === 'all' ? '전체' : origin;
+    return `<button class="preset-chip ${roastFilterState.originGroup === origin ? 'active' : ''}" type="button" onclick="setRoastFilter('originGroup', '${origin}')">${htmlEscape(label)}</button>`;
+  }).join('');
+
+  sortWrap.innerHTML = sortOptions.map(opt =>
+    `<button class="preset-chip ${roastFilterState.sort === opt.id ? 'active' : ''}" type="button" onclick="setRoastFilter('sort', '${opt.id}')">${htmlEscape(opt.label)}</button>`
+  ).join('');
+
+  stateWrap.innerHTML = processOptions.map(process => {
+    const label = process === 'all' ? '전체' : process;
+    return `<button class="preset-chip ${roastFilterState.process === process ? 'active' : ''}" type="button" onclick="setRoastFilter('process', '${process}')">${htmlEscape(label)}</button>`;
+  }).join('');
+}
+function renderRoastDetail() {
+  const preset = roastPresetById(selectedRoastPresetId);
+  const sourceLink = document.getElementById('preset-source-link');
+  const favBtn = document.getElementById('preset-fav-btn');
+  const metaEl = document.getElementById('preset-detail-meta');
+  const detailActions = sourceLink?.closest('.preset-detail-actions');
+
+  document.getElementById('preset-name').textContent = `${preset.originCountry} · ${preset.name}`;
+  metaEl.innerHTML = renderPresetMeta([
+    { label: '원산지', value: `${preset.originCountry} ${preset.originRegion}`.trim() },
+    { label: '종류', value: preset.variety },
+    { label: '배전', value: roastLevelLabel(preset.roastLevel) },
+    { label: '예열', value: `${preset.preheatTemp}℃` },
+    { label: '투입', value: `${preset.chargeTemp}℃` },
+    { label: '총', value: fmt(roastTotalSec(preset)) },
+  ]);
+  document.getElementById('preset-guide').textContent = preset.guide;
+  sourceLink.href = preset.sourceUrl;
+  sourceLink.title = preset.sourceLabel;
+  sourceLink.hidden = false;
+  sourceLink.textContent = '출처 보기';
+  favBtn.hidden = true;
+  favBtn.classList.remove('on');
+  favBtn.textContent = '';
+  favBtn.removeAttribute('aria-pressed');
+  if (detailActions) detailActions.hidden = false;
+}
+function renderRoastList() {
+  const list = filteredRoastPresets();
+  const listEl = document.getElementById('ramen-list');
+
+  if (!listEl) return;
+  if (!list.length) {
+    listEl.innerHTML = `
+      <div class="preset-empty">
+        조건에 맞는 로스팅 프리셋이 없습니다.<br>
+        필터를 다시 열거나 조건을 풀어보세요.
+        <div class="preset-apply-row">
+          <button class="preset-apply" type="button" onclick="resetRoastFilters()">전체 보기</button>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  listEl.innerHTML = list.map(preset => {
+    const selected = preset.id === selectedRoastPresetId;
+    return `
+      <div class="preset-card ${selected ? 'selected' : ''}" role="button" tabindex="0" data-select="${htmlEscape(preset.id)}" aria-pressed="${String(selected)}">
+        <span class="preset-card-label">${htmlEscape(preset.name)}</span>
+      </div>
+    `;
+  }).join('');
+
+  listEl.onclick = e => {
+    const card = e.target.closest('[data-select]');
+    if (!card) return;
+    selectRoastPreset(card.dataset.select);
+  };
+  listEl.onkeydown = e => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const card = e.target.closest('[data-select]');
+    if (!card) return;
+    e.preventDefault();
+    selectRoastPreset(card.dataset.select);
+  };
+
+  if (roastListScrollMode === 'filter') {
+    listEl.scrollTop = 0;
+    const selectedCard = listEl.querySelector('.preset-card.selected');
+    if (selectedCard) {
+      requestAnimationFrame(() => {
+        selectedCard.scrollIntoView({ block: 'nearest' });
+      });
+    }
+    roastListScrollMode = null;
+  }
+}
+function renderRoastBrowser() {
+  if (activeProfileId !== 'roast') return;
+  renderRoastFilterControls();
+  renderRoastDetail();
+  renderRoastList();
+}
+function setRoastFilter(part, value) {
+  roastFilterState = normalizeRoastFilterState({ ...roastFilterState, [part]: value });
+  saveRoastFilterState();
+  roastListScrollMode = 'filter';
+  renderRoastBrowser();
+}
+function resetRoastFilters() {
+  roastFilterState = { originGroup: 'all', level: 'all', process: 'all', sort: 'popular' };
+  saveRoastFilterState();
+  roastListScrollMode = 'filter';
+  renderRoastBrowser();
+}
+function applyRoastPreset(id = selectedRoastPresetId) {
+  if (activeProfileId !== 'roast' || isProfileSwitchLocked()) return;
+  if (S.extActive) _closeExtModal();
+  clearAllAlerts();
+  const preset = roastPresetById(id);
+  selectedRoastPresetId = preset.id;
+  MS_DEFAULTS = defaultMilestonesFor(activeProfileId);
+  resetMasterToIdleState();
+  S.milestones = MS_DEFAULTS.map(d => ({ ...d, reached: false }));
+  S.preheatTargetSec = preset.preheatSec;
+  setTargetTemp(preset.preheatTemp);
+  resetPreheat();
+  saveRecipe();
+  renderRoastBrowser();
+  renderMilestones();
+  syncRingAndCountdown();
+  setRoastMode();
+}
+function selectRoastPreset(id) {
+  applyRoastPreset(id);
+}
 function renderCurrentPresetBrowser() {
-  if (activeProfileId === 'ramen') renderRamenBrowser();
+  if (activeProfileId === 'roast') renderRoastBrowser();
+  else if (activeProfileId === 'ramen') renderRamenBrowser();
   else if (activeProfileId === 'mandu') renderManduBrowser();
   else if (activeProfileId === 'egg') renderEggBrowser();
 }
 function applyCurrentPreset() {
+  if (activeProfileId === 'roast') applyRoastPreset(selectedRoastPresetId);
   if (activeProfileId === 'ramen') applyRamenPreset(selectedRamenPresetId);
   else if (activeProfileId === 'mandu') applyManduPreset(selectedManduPresetId);
   else if (activeProfileId === 'egg') applyEggPreset(selectedEggPresetId);
 }
 function resetCurrentPresetFilters() {
+  if (activeProfileId === 'roast') resetRoastFilters();
   if (activeProfileId === 'ramen') resetRamenFilters();
   else if (activeProfileId === 'mandu') resetManduFilters();
   else if (activeProfileId === 'egg') resetEggSelection();
 }
 function toggleCurrentPresetFavoritesOnly() {
+  if (activeProfileId === 'roast') return;
   if (activeProfileId === 'ramen') toggleRamenFavoritesOnly();
   else if (activeProfileId === 'mandu') toggleManduFavoritesOnly();
 }
 function toggleSelectedCurrentPresetFavorite() {
+  if (activeProfileId === 'roast') return;
   if (activeProfileId === 'ramen') toggleSelectedRamenFavorite();
   else if (activeProfileId === 'mandu') toggleSelectedManduFavorite();
 }
 function setCurrentPresetFilter(part, value) {
+  if (activeProfileId === 'roast') setRoastFilter(part, value);
   if (activeProfileId === 'ramen') setRamenFilter(part, value);
   else if (activeProfileId === 'mandu') setManduFilter(part, value);
 }
 function selectCurrentPreset(id) {
+  if (activeProfileId === 'roast') selectRoastPreset(id);
   if (activeProfileId === 'ramen') selectRamenPreset(id);
   else if (activeProfileId === 'mandu') selectManduPreset(id);
   else if (activeProfileId === 'egg') selectEggPreset(id);
@@ -3134,16 +3625,17 @@ function updateProfileUI() {
   document.getElementById('app-subtitle').textContent = profile.subtitle;
   document.getElementById('profile-chip').textContent = profile.chip;
   document.getElementById('top-section').hidden = !profile.preheat;
-  if (presetSection) presetSection.hidden = !['ramen', 'mandu', 'egg'].includes(activeProfileId);
+  if (presetSection) presetSection.hidden = !['roast', 'ramen', 'mandu', 'egg'].includes(activeProfileId);
   if (presetSectionLabel) {
     presetSectionLabel.textContent =
+      activeProfileId === 'roast' ? '로스팅 프리셋' :
       activeProfileId === 'ramen' ? '라면 프리셋' :
       activeProfileId === 'mandu' ? '만두 프리셋' :
       activeProfileId === 'egg' ? '계란 프리셋' :
       '프리셋';
   }
   if (presetReset) presetReset.textContent = activeProfileId === 'egg' ? '상태 초기화' : '필터 초기화';
-  if (activeProfileId === 'ramen' || activeProfileId === 'mandu' || activeProfileId === 'egg') renderCurrentPresetBrowser();
+  if (activeProfileId === 'roast' || activeProfileId === 'ramen' || activeProfileId === 'mandu' || activeProfileId === 'egg') renderCurrentPresetBrowser();
   if (profile.preheatAlarm) {
     S.preheatAlarm = { ...profile.preheatAlarm, reached: S.preheatAlarm.reached };
   }
@@ -3430,8 +3922,14 @@ function doReset() {
   S.preheatStartTs = null;
   S.preheatElapsedMs = 0;
   S.preheatRunning = false;
-  S.preheatTargetSec = currentProfile().defaultPreheatSec ?? 600;
-  setTargetTemp(currentProfile().defaultTargetTemp || DEFAULT_TARGET_TEMP);
+  if (activeProfileId === 'roast') {
+    const roastPreset = roastPresetById(selectedRoastPresetId);
+    S.preheatTargetSec = roastPreset.preheatSec;
+    setTargetTemp(roastPreset.preheatTemp);
+  } else {
+    S.preheatTargetSec = currentProfile().defaultPreheatSec ?? 600;
+    setTargetTemp(currentProfile().defaultTargetTemp || DEFAULT_TARGET_TEMP);
+  }
   S.preheatAlarm = { ...(currentProfile().preheatAlarm || TIMER_PROFILES.roast.preheatAlarm), reached: false };
   saveRecipe();
   setRoastMode();
