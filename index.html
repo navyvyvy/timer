@@ -365,9 +365,9 @@ body.timer-active .site-footer {
   display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
 }
 .preset-search {
-  width: 86px; min-height: 20px; border: 1px solid var(--border);
+  width: 64px; min-height: 18px; border: 1px solid var(--border);
   border-radius: 4px; background: var(--surface2); color: var(--text);
-  font-size: 8.5px; font-weight: 700; padding: 0 6px; line-height: 1;
+  font-size: 8px; font-weight: 700; padding: 0 4px; line-height: 1;
 }
 .preset-search::placeholder { color: var(--text-dim); }
 .preset-state-group {
@@ -526,13 +526,49 @@ body[data-profile="egg"] .preset-detail {
 }
 body[data-profile="roast"] .preset-detail {
   gap: 5px;
+  height: 188px;
+  overflow: hidden;
+}
+body[data-profile="roast"] .preset-detail-head {
+  min-width: 0;
+}
+body[data-profile="roast"] #preset-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+body[data-profile="roast"] .preset-detail-meta {
+  gap: 3px;
+}
+body[data-profile="roast"] .preset-detail-badge {
+  min-height: 18px;
+  padding: 0 5px;
+  font-size: 8.5px;
+}
+body[data-profile="roast"] .preset-detail-badge strong {
+  font-size: 8.5px;
+}
+body[data-profile="roast"] .preset-recipe-label {
+  margin-top: 0;
 }
 body[data-profile="egg"] #preset-name {
   font-size: 13px;
 }
 body[data-profile="roast"] #preset-guide {
-  min-height: 70px;
-  max-height: 96px;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+  overflow: auto;
+  font-size: 11px;
+  line-height: 1.35;
+  scrollbar-width: none;
+}
+body[data-profile="roast"] #preset-guide::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 body[data-profile="egg"] .preset-detail-meta {
   gap: 3px;
@@ -950,7 +986,7 @@ body[data-profile="egg"] #preset-guide {
     <div class="app-title-row">
       <div>
         <div id="app-title">로스팅 타이머</div>
-        <div id="app-subtitle">예열부터 완료까지 단계별로 확인합니다.</div>
+        <div id="app-subtitle">예열부터 완료까지 단계별로 보여줍니다.</div>
       </div>
       <span class="profile-chip" id="profile-chip">ROAST</span>
     </div>
@@ -961,39 +997,6 @@ body[data-profile="egg"] #preset-guide {
       <button class="mode-tab" type="button" role="tab" data-profile-tab="egg" onclick="switchProfile('egg')">🥚 계란</button>
     </div>
   </header>
-
-  <!-- TOP: Preheat -->
-  <div id="top-section">
-    <span class="section-label">예열 타이머</span>
-
-    <!-- 6-col grid: [timer×3] [온도] [시작] [초기화] -->
-    <div class="ph-grid">
-      <div class="ph-time-big" id="preheat-display">10:00</div>
-      <span class="info-chip">
-        <input type="number" id="target-temp" value="220" min="100" max="300" aria-label="목표 온도">
-        <span class="temp-unit">℃</span>
-      </span>
-      <button class="ph-ctrl-btn start" id="ph-start" onclick="togglePreheat()">시작</button>
-      <button class="ph-ctrl-btn reset"              onclick="resetPreheat()">초기화</button>
-    </div>
-
-    <!-- progress bar full width -->
-    <div class="ph-progress-row">
-      <div class="ph-progress-wrap">
-        <div class="ph-progress-bar" id="ph-bar"></div>
-      </div>
-    </div>
-
-    <!-- adj buttons — same 6-col grid, same gap → pixel-perfect alignment -->
-    <div class="adj-grid-6">
-      <button class="adj-btn minus" onclick="adjustPreheat(-60)">−1분</button>
-      <button class="adj-btn minus" onclick="adjustPreheat(-30)">−30초</button>
-      <button class="adj-btn minus" onclick="adjustPreheat(-10)">−10초</button>
-      <button class="adj-btn plus"  onclick="adjustPreheat( 10)">+10초</button>
-      <button class="adj-btn plus"  onclick="adjustPreheat( 30)">+30초</button>
-      <button class="adj-btn plus"  onclick="adjustPreheat( 60)">+1분</button>
-    </div>
-  </div>
 
   <!-- PRODUCT PRESET -->
   <section id="preset-section" hidden>
@@ -1034,6 +1037,39 @@ body[data-profile="egg"] #preset-guide {
       <div id="preset-guide"></div>
     </div>
   </section>
+
+  <!-- TOP: Preheat -->
+  <div id="top-section">
+    <span class="section-label">예열 타이머</span>
+
+    <!-- 6-col grid: [timer×3] [온도] [시작] [초기화] -->
+    <div class="ph-grid">
+      <div class="ph-time-big" id="preheat-display">10:00</div>
+      <span class="info-chip">
+        <input type="number" id="target-temp" value="220" min="100" max="300" aria-label="목표 온도">
+        <span class="temp-unit">℃</span>
+      </span>
+      <button class="ph-ctrl-btn start" id="ph-start" onclick="togglePreheat()">시작</button>
+      <button class="ph-ctrl-btn reset"              onclick="resetPreheat()">초기화</button>
+    </div>
+
+    <!-- progress bar full width -->
+    <div class="ph-progress-row">
+      <div class="ph-progress-wrap">
+        <div class="ph-progress-bar" id="ph-bar"></div>
+      </div>
+    </div>
+
+    <!-- adj buttons — same 6-col grid, same gap → pixel-perfect alignment -->
+    <div class="adj-grid-6">
+      <button class="adj-btn minus" onclick="adjustPreheat(-60)">−1분</button>
+      <button class="adj-btn minus" onclick="adjustPreheat(-30)">−30초</button>
+      <button class="adj-btn minus" onclick="adjustPreheat(-10)">−10초</button>
+      <button class="adj-btn plus"  onclick="adjustPreheat( 10)">+10초</button>
+      <button class="adj-btn plus"  onclick="adjustPreheat( 30)">+30초</button>
+      <button class="adj-btn plus"  onclick="adjustPreheat( 60)">+1분</button>
+    </div>
+  </div>
 
   <!-- MASTER TIMER -->
   <div id="master-section">
@@ -2014,7 +2050,7 @@ function manduSortScore(preset) {
   return MANDU_POPULARITY[preset.id] || 0;
 }
 function loadManduFilterState() {
-  const fallback = { company: 'all', kind: 'all', sort: 'popular', favoritesOnly: false };
+  const fallback = { company: 'all', kind: 'all', sort: 'popular', favoritesOnly: false, query: '' };
   try {
     const raw = localStorage.getItem(MANDU_FILTER_STORAGE_KEY);
     if (!raw) return fallback;
@@ -2028,7 +2064,8 @@ function normalizeManduFilterState(value) {
   const company = value && companyList.has(value.company) ? value.company : 'all';
   const kind = value && kindList.has(value.kind) ? value.kind : 'all';
   const sort = value && ['popular', 'alpha'].includes(value.sort) ? value.sort : 'popular';
-  return { company, kind, sort, favoritesOnly: Boolean(value?.favoritesOnly) };
+  const query = value && typeof value.query === 'string' ? value.query.slice(0, 48) : '';
+  return { company, kind, sort, favoritesOnly: Boolean(value?.favoritesOnly), query };
 }
 function saveManduFilterState() {
   try {
@@ -2055,10 +2092,20 @@ function isManduFavorite(id) {
   return manduFavoriteIds.has(id);
 }
 function filteredManduPresets() {
+  const query = (manduFilterState.query || '').trim().toLowerCase();
   return MANDU_PRESETS.filter(preset => {
     if (manduFilterState.company !== 'all' && preset.maker !== manduFilterState.company) return false;
     if (manduFilterState.kind !== 'all' && manduKind(preset) !== manduFilterState.kind) return false;
     if (manduFilterState.favoritesOnly && !isManduFavorite(preset.id)) return false;
+    if (query) {
+      const haystack = [
+        preset.name,
+        preset.maker,
+        manduKind(preset),
+        preset.guide,
+      ].join(' ').toLowerCase();
+      if (!haystack.includes(query)) return false;
+    }
     return true;
   }).sort((a, b) => {
     if (manduFilterState.sort === 'alpha') {
@@ -2200,6 +2247,7 @@ function roastMilestones(drySec, browningSec, developmentSec) {
   ];
 }
 const COFFEESYS_BUSINESS_LIST_URL = 'https://m.coffeesys.co.kr/product/list.html?cate_no=107';
+const COFFEESYS_PERSONAL_LIST_URL = 'https://m.coffeesys.co.kr/product/list.html?cate_no=106&sort_method=1';
 
 const ROAST_PRESETS = [
   {
@@ -2220,6 +2268,23 @@ const ROAST_PRESETS = [
     sourceUrl: 'https://m.coffeesys.co.kr/product/%EB%B8%8C%EB%9D%BC%EC%A7%88-fc-%EC%84%B8%ED%95%98%EB%8F%84-%ED%8C%8C%ED%8A%B8%EB%A1%9C%EC%B9%98%EB%8B%88%EC%98%A4-scr-1416/527/category/1/display/5/?icid=MAIN.product_listmain_4',
   },
   {
+    id: 'brazil-fc-sehado',
+    originCountry: '브라질',
+    originRegion: '세하도',
+    originGroup: '중남미',
+    name: 'FC 세하도 [scr-17/18]',
+    variety: '아라비카',
+    roastLevel: 'medium',
+    process: '내추럴',
+    chargeTemp: 201,
+    preheatTemp: 212,
+    preheatSec: 660,
+    milestones: roastMilestones(330, 210, 120),
+    guide: '예열 212°C 전후, 투입 201°C 전후, 1차 크랙은 8분 안팎, 총 11분 전후가 무난합니다. 초콜릿, 캐러멜, 헤이즐넛의 둥근 단맛을 안정적으로 살리기 좋습니다.',
+    sourceLabel: '커피시스 개인회원마켓',
+    sourceUrl: COFFEESYS_PERSONAL_LIST_URL,
+  },
+  {
     id: 'colombia-supremo-risaralda',
     originCountry: '콜롬비아',
     originRegion: '리사랄다',
@@ -2235,6 +2300,40 @@ const ROAST_PRESETS = [
     guide: '예열 210°C 전후, 투입 200°C 전후, 1차 크랙은 7분 50초 안팎, 총 10분 45초 전후가 무난합니다. 캐러멜, 코코아, 사과, 견과류의 균형을 잡기 좋습니다.',
     sourceLabel: '커피시스 상품',
     sourceUrl: 'https://m.coffeesys.co.kr/',
+  },
+  {
+    id: 'colombia-supremo-medellin',
+    originCountry: '콜롬비아',
+    originRegion: '메델린',
+    originGroup: '중남미',
+    name: '수프리모 메델린',
+    variety: '아라비카',
+    roastLevel: 'medium',
+    process: '워시드',
+    chargeTemp: 199,
+    preheatTemp: 210,
+    preheatSec: 630,
+    milestones: roastMilestones(320, 190, 120),
+    guide: '예열 210°C 전후, 투입 199°C 전후, 1차 크랙은 7분 45초 안팎, 총 10분 30초 전후가 무난합니다. 코코아, 견과, 사과 같은 부드러운 균형을 잡기 좋습니다.',
+    sourceLabel: '커피시스 개인회원마켓',
+    sourceUrl: COFFEESYS_PERSONAL_LIST_URL,
+  },
+  {
+    id: 'colombia-supremo-huila',
+    originCountry: '콜롬비아',
+    originRegion: '우일라',
+    originGroup: '중남미',
+    name: '수프리모 우일라',
+    variety: '아라비카',
+    roastLevel: 'medium',
+    process: '워시드',
+    chargeTemp: 199,
+    preheatTemp: 210,
+    preheatSec: 630,
+    milestones: roastMilestones(320, 190, 120),
+    guide: '예열 210°C 전후, 투입 199°C 전후, 1차 크랙은 7분 45초 안팎, 총 10분 30초 전후가 무난합니다. 캐러멜, 오렌지, 코코아의 깨끗한 단맛을 살리기 좋습니다.',
+    sourceLabel: '커피시스 개인회원마켓',
+    sourceUrl: COFFEESYS_PERSONAL_LIST_URL,
   },
   {
     id: 'ethiopia-chelchele-natural',
@@ -2507,6 +2606,23 @@ const ROAST_PRESETS = [
     guide: '예열 204°C 전후, 투입 194°C 전후, 1차 크랙은 7분 10초 안팎, 총 9분 45초 전후가 출발점입니다. 베리, 포도, 복숭아, 플로럴한 향을 밝게 밀어 보세요.',
     sourceLabel: '커피시스 상품',
     sourceUrl: 'https://m.coffeesys.co.kr/',
+  },
+  {
+    id: 'ethiopia-aricha-g1-washed',
+    originCountry: '에티오피아',
+    originRegion: '아리차',
+    originGroup: '아프리카',
+    name: '아리차 G1 워시드',
+    variety: '에티오피안 헤일룸',
+    roastLevel: 'light',
+    process: '워시드',
+    chargeTemp: 195,
+    preheatTemp: 205,
+    preheatSec: 600,
+    milestones: roastMilestones(300, 180, 90),
+    guide: '예열 205°C 전후, 투입 195°C 전후, 1차 크랙은 7분 안팎, 총 9분 30초 전후가 무난합니다. 자스민, 레몬, 홍차 같은 맑은 향을 또렷하게 살리기 좋습니다.',
+    sourceLabel: '커피시스 개인회원마켓',
+    sourceUrl: COFFEESYS_PERSONAL_LIST_URL,
   },
   {
     id: 'ethiopia-abaya-geisha-natural',
@@ -2832,6 +2948,91 @@ const ROAST_PRESETS = [
     sourceUrl: COFFEESYS_BUSINESS_LIST_URL,
   },
   {
+    id: 'decaf-guatemala-mw',
+    originCountry: '과테말라',
+    originRegion: 'M.W',
+    originGroup: '중남미',
+    name: '디카페인 과테말라 M.W',
+    variety: '아라비카',
+    roastLevel: 'light',
+    process: '디카페인',
+    chargeTemp: 191,
+    preheatTemp: 201,
+    preheatSec: 570,
+    milestones: roastMilestones(285, 180, 90),
+    guide: '예열 201°C 전후, 투입 191°C 전후, 1차 크랙은 7분 10초 안팎, 총 9분 30초 전후가 무난합니다. 디카페인은 과열을 피하고 단맛과 깔끔함을 먼저 잡아 보세요.',
+    sourceLabel: '커피시스 개인회원마켓',
+    sourceUrl: COFFEESYS_PERSONAL_LIST_URL,
+  },
+  {
+    id: 'decaf-brazil-mw',
+    originCountry: '브라질',
+    originRegion: 'M.W',
+    originGroup: '중남미',
+    name: '디카페인 브라질 M.W',
+    variety: '아라비카',
+    roastLevel: 'medium',
+    process: '디카페인',
+    chargeTemp: 192,
+    preheatTemp: 202,
+    preheatSec: 585,
+    milestones: roastMilestones(290, 185, 100),
+    guide: '예열 202°C 전후, 투입 192°C 전후, 1차 크랙은 7분 20초 안팎, 총 9분 45초 전후가 무난합니다. 견과, 초콜릿, 둥근 바디를 중심으로 가볍게 올리기 좋습니다.',
+    sourceLabel: '커피시스 개인회원마켓',
+    sourceUrl: COFFEESYS_PERSONAL_LIST_URL,
+  },
+  {
+    id: 'decaf-ethiopia-g4-mw',
+    originCountry: '에티오피아',
+    originRegion: 'G4 M.W',
+    originGroup: '아프리카',
+    name: '디카페인 에티오피아 G4 M.W',
+    variety: '에티오피안 헤일룸',
+    roastLevel: 'light',
+    process: '디카페인',
+    chargeTemp: 190,
+    preheatTemp: 200,
+    preheatSec: 570,
+    milestones: roastMilestones(280, 180, 100),
+    guide: '예열 200°C 전후, 투입 190°C 전후, 1차 크랙은 7분 안팎, 총 9분 20초 전후가 무난합니다. 향은 살리고 떫은맛은 억제하는 쪽으로 짧고 깨끗하게 가져가 보세요.',
+    sourceLabel: '커피시스 개인회원마켓',
+    sourceUrl: COFFEESYS_PERSONAL_LIST_URL,
+  },
+  {
+    id: 'decaf-colombia-mw',
+    originCountry: '콜롬비아',
+    originRegion: 'M.W',
+    originGroup: '중남미',
+    name: '디카페인 콜롬비아 M.W',
+    variety: '아라비카',
+    roastLevel: 'medium',
+    process: '디카페인',
+    chargeTemp: 191,
+    preheatTemp: 201,
+    preheatSec: 570,
+    milestones: roastMilestones(285, 180, 90),
+    guide: '예열 201°C 전후, 투입 191°C 전후, 1차 크랙은 7분 10초 안팎, 총 9분 30초 전후가 무난합니다. 코코아, 사과, 부드러운 산미를 정갈하게 살려 보세요.',
+    sourceLabel: '커피시스 개인회원마켓',
+    sourceUrl: COFFEESYS_PERSONAL_LIST_URL,
+  },
+  {
+    id: 'decaf-colombia-sugarcane',
+    originCountry: '콜롬비아',
+    originRegion: '슈가케인',
+    originGroup: '중남미',
+    name: '디카페인 콜롬비아 슈가케인',
+    variety: '아라비카',
+    roastLevel: 'medium',
+    process: '디카페인',
+    chargeTemp: 192,
+    preheatTemp: 202,
+    preheatSec: 585,
+    milestones: roastMilestones(290, 185, 100),
+    guide: '예열 202°C 전후, 투입 192°C 전후, 1차 크랙은 7분 20초 안팎, 총 9분 45초 전후가 무난합니다. 단맛 중심으로 짧게 가져가면 부드럽고 깔끔하게 나옵니다.',
+    sourceLabel: '커피시스 개인회원마켓',
+    sourceUrl: COFFEESYS_PERSONAL_LIST_URL,
+  },
+  {
     id: 'jamaica-blue-mountain-no1',
     originCountry: '자메이카',
     originRegion: '블루마운틴',
@@ -2848,11 +3049,277 @@ const ROAST_PRESETS = [
     sourceLabel: '커피시스 사업자 목록',
     sourceUrl: COFFEESYS_BUSINESS_LIST_URL,
   },
+  {
+    id: 'panama-geisha-washed',
+    originCountry: '파나마',
+    originRegion: '보케테',
+    originGroup: '중남미',
+    name: '파나마 게이샤',
+    variety: '게이샤',
+    roastLevel: 'light',
+    process: '워시드',
+    chargeTemp: 194,
+    preheatTemp: 204,
+    preheatSec: 550,
+    milestones: roastMilestones(280, 175, 95),
+    guide: '예열 204°C 전후, 투입 194°C 전후, 1차 크랙은 7분 안팎, 총 9분 10초 전후가 출발점입니다. 자스민, 베르가못, 복숭아 같은 향이 죽지 않게 짧고 깨끗하게 가져가 보세요.',
+    sourceLabel: 'Sweet Maria\'s Gesha glossary',
+    sourceUrl: 'https://library.sweetmarias.com/glossary/gesha/',
+  },
+  {
+    id: 'el-salvador-pacamara-washed',
+    originCountry: '엘살바도르',
+    originRegion: '산타아나',
+    originGroup: '중남미',
+    name: '파카마라',
+    variety: '파카마라',
+    roastLevel: 'medium',
+    process: '워시드',
+    chargeTemp: 198,
+    preheatTemp: 208,
+    preheatSec: 615,
+    milestones: roastMilestones(310, 190, 115),
+    guide: '예열 208°C 전후, 투입 198°C 전후, 1차 크랙은 7분 30초 안팎, 총 10분 15초 전후가 무난합니다. 큰 생두라 열을 급하게 주지 말고, 꽃향과 단맛을 천천히 밀어 올리세요.',
+    sourceLabel: 'Sweet Maria\'s Pacamara glossary',
+    sourceUrl: 'https://library.sweetmarias.com/glossary/pacamara/',
+  },
+  {
+    id: 'colombia-pink-bourbon-washed',
+    originCountry: '콜롬비아',
+    originRegion: '우일라',
+    originGroup: '중남미',
+    name: '핑크 버번',
+    variety: '핑크 버번',
+    roastLevel: 'light',
+    process: '워시드',
+    chargeTemp: 195,
+    preheatTemp: 205,
+    preheatSec: 555,
+    milestones: roastMilestones(285, 175, 95),
+    guide: '예열 205°C 전후, 투입 195°C 전후, 1차 크랙은 7분 10초 안팎, 총 9분 15초 전후가 출발점입니다. 밝은 산미와 베리, 브라운슈거 느낌을 살리기 좋습니다.',
+    sourceLabel: 'Sweet Maria\'s Pink Bourbon glossary',
+    sourceUrl: 'https://library.sweetmarias.com/glossary/pink-bourbon/',
+  },
+  {
+    id: 'nicaragua-maracaturra-washed',
+    originCountry: '니카라과',
+    originRegion: '마타갈파',
+    originGroup: '중남미',
+    name: '마라카투라',
+    variety: '마라카투라',
+    roastLevel: 'medium',
+    process: '워시드',
+    chargeTemp: 197,
+    preheatTemp: 207,
+    preheatSec: 600,
+    milestones: roastMilestones(305, 185, 110),
+    guide: '예열 207°C 전후, 투입 197°C 전후, 1차 크랙은 7분 20초 안팎, 총 10분 전후가 무난합니다. 과일 단맛과 코코아, 캐러멜이 함께 나오도록 천천히 밀어 주세요.',
+    sourceLabel: 'Sweet Maria\'s Maracaturra glossary',
+    sourceUrl: 'https://library.sweetmarias.com/glossary/maracaturra/',
+  },
+  {
+    id: 'kenya-sl28-washed',
+    originCountry: '케냐',
+    originRegion: '키리냐가',
+    originGroup: '아프리카',
+    name: 'SL-28',
+    variety: 'SL-28',
+    roastLevel: 'light',
+    process: '워시드',
+    chargeTemp: 194,
+    preheatTemp: 204,
+    preheatSec: 570,
+    milestones: roastMilestones(295, 180, 95),
+    guide: '예열 204°C 전후, 투입 194°C 전후, 1차 크랙은 7분 20초 안팎, 총 9분 30초 전후가 출발점입니다. 블랙커런트, 시트러스, 홍차 같은 선명한 결을 살려 보세요.',
+    sourceLabel: 'Sweet Maria\'s SL-28 glossary',
+    sourceUrl: 'https://library.sweetmarias.com/glossary/sl-28/',
+  },
+  {
+    id: 'costa-rica-catuai-washed',
+    originCountry: '코스타리카',
+    originRegion: '타라주',
+    originGroup: '중남미',
+    name: '카투아이',
+    variety: '카투아이',
+    roastLevel: 'medium',
+    process: '워시드',
+    chargeTemp: 199,
+    preheatTemp: 209,
+    preheatSec: 600,
+    milestones: roastMilestones(305, 185, 110),
+    guide: '예열 209°C 전후, 투입 199°C 전후, 1차 크랙은 7분 30초 안팎, 총 10분 전후가 무난합니다. 균형과 단맛이 좋고, 너무 빠르지만 않게 정리하면 깔끔합니다.',
+    sourceLabel: 'Sweet Maria\'s Catuai glossary',
+    sourceUrl: 'https://library.sweetmarias.com/glossary/catuai/',
+  },
+  {
+    id: 'guatemala-bourbon-washed',
+    originCountry: '과테말라',
+    originRegion: '우에우에테낭고',
+    originGroup: '중남미',
+    name: '버번',
+    variety: '버번',
+    roastLevel: 'medium',
+    process: '워시드',
+    chargeTemp: 200,
+    preheatTemp: 210,
+    preheatSec: 600,
+    milestones: roastMilestones(310, 185, 105),
+    guide: '예열 210°C 전후, 투입 200°C 전후, 1차 크랙은 7분 30초 안팎, 총 10분 전후가 출발점입니다. 캐러멜, 아몬드, 코코아 쪽의 기본기를 잘 드러내는 쪽이 맞습니다.',
+    sourceLabel: 'Sweet Maria\'s Bourbon glossary',
+    sourceUrl: 'https://library.sweetmarias.com/glossary/bourbon/',
+  },
+  {
+    id: 'mexico-maragogype-washed',
+    originCountry: '멕시코',
+    originRegion: '치아파스',
+    originGroup: '중남미',
+    name: '마라고지페',
+    variety: '마라고지페',
+    roastLevel: 'light',
+    process: '워시드',
+    chargeTemp: 195,
+    preheatTemp: 205,
+    preheatSec: 570,
+    milestones: roastMilestones(315, 195, 120),
+    guide: '예열 205°C 전후, 투입 195°C 전후, 1차 크랙은 7분 40초 안팎, 총 10분 30초 전후가 무난합니다. 큰 생두라 열을 급하게 넣지 말고, 부드러운 단맛과 정갈한 바디를 살려 보세요.',
+    sourceLabel: 'Sweet Maria\'s Maragogype glossary',
+    sourceUrl: 'https://library.sweetmarias.com/glossary/maragogype/',
+  },
+  {
+    id: 'india-s795-washed',
+    originCountry: '인도',
+    originRegion: '카르나타카',
+    originGroup: '아시아',
+    name: 'S-795',
+    variety: 'S-795',
+    roastLevel: 'medium',
+    process: '워시드',
+    chargeTemp: 199,
+    preheatTemp: 209,
+    preheatSec: 595,
+    milestones: roastMilestones(305, 185, 105),
+    guide: '예열 209°C 전후, 투입 199°C 전후, 1차 크랙은 7분 30초 안팎, 총 9분 55초 전후가 무난합니다. 스파이스, 코코아, 부드러운 과일톤을 무리 없이 정리하는 쪽이 좋습니다.',
+    sourceLabel: 'Sweet Maria\'s S-795 glossary',
+    sourceUrl: 'https://library.sweetmarias.com/glossary/s795/',
+  },
+  {
+    id: 'colombia-wush-wush-washed',
+    originCountry: '콜롬비아',
+    originRegion: '우일라',
+    originGroup: '중남미',
+    name: 'Wush Wush',
+    variety: 'Wush Wush',
+    roastLevel: 'light',
+    process: '워시드',
+    chargeTemp: 194,
+    preheatTemp: 204,
+    preheatSec: 535,
+    milestones: roastMilestones(275, 170, 90),
+    guide: '예열 204°C 전후, 투입 194°C 전후, 1차 크랙은 6분 50초 안팎, 총 8분 55초 전후가 출발점입니다. 향이 섬세해서 길게 끌기보다 산뜻하고 선명하게 끊는 쪽이 잘 맞습니다.',
+    sourceLabel: 'Sweet Maria\'s Wush Wush glossary',
+    sourceUrl: 'https://library.sweetmarias.com/glossary/wush-wush/',
+  },
+  {
+    id: 'hawaii-kona-typica',
+    originCountry: '미국',
+    originRegion: '코나',
+    originGroup: '중남미',
+    name: '하와이 코나',
+    variety: '코나 티피카',
+    roastLevel: 'light',
+    process: '워시드',
+    chargeTemp: 195,
+    preheatTemp: 205,
+    preheatSec: 565,
+    milestones: roastMilestones(290, 180, 95),
+    guide: '예열 205°C 전후, 투입 195°C 전후, 1차 크랙은 7분 10초 안팎, 총 9분 25초 전후가 무난합니다. 코코아, 견과, 캐러멜처럼 부드럽고 깨끗한 결을 살리기 좋습니다.',
+    sourceLabel: 'Sweet Maria\'s Kona Typica glossary',
+    sourceUrl: 'https://library.sweetmarias.com/glossary/kona-typica/',
+  },
+  {
+    id: 'nicaragua-java-washed',
+    originCountry: '니카라과',
+    originRegion: '누에바 세고비아',
+    originGroup: '중남미',
+    name: '자바',
+    variety: '자바',
+    roastLevel: 'medium',
+    process: '워시드',
+    chargeTemp: 198,
+    preheatTemp: 208,
+    preheatSec: 595,
+    milestones: roastMilestones(305, 185, 105),
+    guide: '예열 208°C 전후, 투입 198°C 전후, 1차 크랙은 7분 30초 안팎, 총 9분 55초 전후가 출발점입니다. 너무 화려하게 밀기보다 깨끗한 단맛과 은은한 허브톤을 살려 주세요.',
+    sourceLabel: 'Sweet Maria\'s Java cultivar',
+    sourceUrl: 'https://library.sweetmarias.com/glossary/java-cultivar/',
+  },
+  ];
+const ROAST_RECOMMENDED_ORDER = [
+  'brazil-gc-santos',
+  'colombia-supremo-risaralda',
+  'guatemala-antigua-shb',
+  'ethiopia-yirgacheffe-g2-washed',
+  'ethiopia-yirgacheffe-g1-koke-honey',
+  'kenya-aa-faq',
+  'brazil-fc-mogiana',
+  'brazil-mogiana-fc',
+  'colombia-supremo-medellin',
+  'colombia-supremo-huila',
+  'guatemala-shb-ep',
+  'costa-rica-tarrazu-shb',
+  'honduras-copan-shg',
+  'elsalvador-shg-washed',
+  'nicaragua-shg-ep-washed',
+  'peru-cajamarca-washed',
+  'peru-la-naranja',
+  'brazil-fc-sehado-patrocinio',
+  'brazil-fc-sehado',
+  'brazil-yellow-bourbon',
+  'guatemala-antigua-panorama',
+  'guatemala-wikan',
+  'ethiopia-chelchele-natural',
+  'ethiopia-aricha-g1-natural',
+  'ethiopia-aricha-g1-washed',
+  'ethiopia-abaya-geisha-natural',
+  'kenya-nyeri-red-mountain',
+  'kenya-kahiruini-natural',
+  'ethiopia-sidamo-g2-washed',
+  'ethiopia-sidamo-g4-natural',
+  'ethiopia-guji-g1-natural',
+  'tanzania-aa-faq',
+  'rwanda-aa-washed',
+  'timor-leste-tipica-washed',
+  'india-mysore-nugget-extra-bold',
+  'india-kaipiroyal-aa',
+  'indonesia-mandheling-g1-tp',
+  'indonesia-robusta-g1-natural',
+  'papua-new-guinea-a',
+  'yemen-mocha-mattari',
+  'jamaica-blue-mountain-no1',
+  'decaf-brazil-mw',
+  'decaf-colombia-mw',
+  'decaf-colombia-sugarcane',
+  'decaf-guatemala-mw',
+  'decaf-ethiopia-g4-mw',
+  'vietnam-robusta-scr18',
+  'panama-geisha-washed',
+  'el-salvador-pacamara-washed',
+  'colombia-pink-bourbon-washed',
+  'nicaragua-maracaturra-washed',
+  'kenya-sl28-washed',
+  'costa-rica-catuai-washed',
+  'guatemala-bourbon-washed',
+  'mexico-maragogype-washed',
+  'india-s795-washed',
+  'colombia-wush-wush-washed',
+  'hawaii-kona-typica',
+  'nicaragua-java-washed',
 ];
-const ROAST_POPULARITY = Object.fromEntries(
-  ROAST_PRESETS.map((preset, idx) => [preset.id, ROAST_PRESETS.length - idx])
+const ROAST_RECOMMENDED_SCORE = Object.fromEntries(
+  ROAST_RECOMMENDED_ORDER.map((id, idx) => [id, 10000 - idx])
 );
 const ROAST_FILTER_STORAGE_KEY = 'step-timer:roast-filter:v1';
+const ROAST_FAVORITES_STORAGE_KEY = 'step-timer:roast-favorites:v1';
 function roastPresetById(id) {
   return ROAST_PRESETS.find(preset => preset.id === id) || ROAST_PRESETS[0];
 }
@@ -2863,10 +3330,10 @@ function roastLevelLabel(level) {
   return level === 'medium' ? '중배전' : level === 'dark' ? '강배전' : '약배전';
 }
 function roastSortScore(preset) {
-  return ROAST_POPULARITY[preset.id] || 0;
+  return ROAST_RECOMMENDED_SCORE[preset.id] || 0;
 }
 function loadRoastFilterState() {
-  const fallback = { originGroup: 'all', level: 'all', process: 'all', sort: 'popular', query: '' };
+  const fallback = { originGroup: 'all', level: 'all', process: 'all', sort: 'popular', query: '', favoritesOnly: false };
   try {
     const raw = localStorage.getItem(ROAST_FILTER_STORAGE_KEY);
     if (!raw) return fallback;
@@ -2877,18 +3344,37 @@ function loadRoastFilterState() {
 function normalizeRoastFilterState(value) {
   const levelList = new Set(['all', 'light', 'medium', 'dark']);
   const originList = new Set(['all', ...ROAST_PRESETS.map(p => p.originGroup)]);
-  const processList = new Set(['all', '내추럴', '워시드']);
+  const processList = new Set(['all', '내추럴', '워시드', '디카페인']);
   const level = value && levelList.has(value.level) ? value.level : 'all';
   const originGroup = value && originList.has(value.originGroup) ? value.originGroup : 'all';
   const process = value && processList.has(value.process) ? value.process : 'all';
   const sort = value && ['popular', 'alpha'].includes(value.sort) ? value.sort : 'popular';
   const query = value && typeof value.query === 'string' ? value.query.slice(0, 48) : '';
-  return { originGroup, level, process, sort, query };
+  return { originGroup, level, process, sort, query, favoritesOnly: Boolean(value?.favoritesOnly) };
 }
 function saveRoastFilterState() {
   try {
     localStorage.setItem(ROAST_FILTER_STORAGE_KEY, JSON.stringify(roastFilterState));
   } catch(e) {}
+}
+function loadRoastFavorites() {
+  try {
+    const raw = localStorage.getItem(ROAST_FAVORITES_STORAGE_KEY);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr)) return new Set();
+    const valid = arr.filter(id => ROAST_PRESETS.some(p => p.id === id));
+    return new Set(valid);
+  } catch(e) {}
+  return new Set();
+}
+function saveRoastFavorites() {
+  try {
+    localStorage.setItem(ROAST_FAVORITES_STORAGE_KEY, JSON.stringify([...roastFavoriteIds]));
+  } catch(e) {}
+}
+function isRoastFavorite(id) {
+  return roastFavoriteIds.has(id);
 }
 function filteredRoastPresets() {
   const query = (roastFilterState.query || '').trim().toLowerCase();
@@ -2896,6 +3382,7 @@ function filteredRoastPresets() {
     if (roastFilterState.level !== 'all' && preset.roastLevel !== roastFilterState.level) return false;
     if (roastFilterState.originGroup !== 'all' && preset.originGroup !== roastFilterState.originGroup) return false;
     if (roastFilterState.process !== 'all' && preset.process !== roastFilterState.process) return false;
+    if (roastFilterState.favoritesOnly && !isRoastFavorite(preset.id)) return false;
     if (query) {
       const haystack = [
         preset.name,
@@ -2932,13 +3419,13 @@ const TIMER_PROFILES = {
     label: '로스팅',
     chip: 'ROAST',
     title: '로스팅 타이머',
-    subtitle: '예열부터 완료까지 단계별로 확인합니다.',
+    subtitle: '예열부터 완료까지 단계별로 보여줍니다.',
     startButton: '☕ 로스팅 시작',
     totalLabel: '총 로스팅',
     doneLabel: '로스팅 완료',
     doneStatus: '🌬️ 쿨링 중',
     finishTitle: '로스팅 완료 시점',
-    finishSub: '더 구울 시간을 선택하거나 쿨링을 시작하세요.',
+    finishSub: '더 구울 시간을 고르거나 쿨링을 시작하세요.',
     finishButton: '쿨링 시작',
     extensionChoices: [
       { label: '+3분', sec: 180 },
@@ -2951,7 +3438,7 @@ const TIMER_PROFILES = {
     defaultTargetTemp: ROAST_PRESETS[0].preheatTemp,
     preheatAlarm: {
       emoji:'🔥', name:'예열 완료',
-      alertMsg:'예열이 완료되었습니다. 원두를 투입할 준비를 하세요!',
+      alertMsg:'예열이 끝났습니다. 원두를 넣을 준비를 해 주세요!',
       actionLabel:'예열 완료 확인',
     },
     milestones: ROAST_PRESETS[0].milestones.map(ms => ({ ...ms })),
@@ -2960,13 +3447,13 @@ const TIMER_PROFILES = {
     label: '만두',
     chip: 'MANDU',
     title: '만두 타이머',
-    subtitle: '찜기 기준으로 냉동과 해동 시간을 바로 맞춥니다.',
+    subtitle: '찜기 기준으로 냉동 / 해동 시간을 바로 맞춥니다.',
     startButton: '🥟 만두 시작',
     totalLabel: '총 조리',
     doneLabel: '만두 완료',
     doneStatus: '완료됨',
     finishTitle: '만두 완료 시점',
-    finishSub: '조금 더 익히거나 조리를 마무리하세요.',
+    finishSub: '조금 더 익히거나 마무리해 주세요.',
     finishButton: '조리 완료',
     extensionChoices: [
       { label: '+30초', sec: 30 },
@@ -2993,13 +3480,13 @@ const TIMER_PROFILES = {
     label: '라면',
     chip: 'RAMEN',
     title: '라면 타이머',
-    subtitle: '제품별 1봉 조리법과 끓는 물 기준 타이머를 맞춥니다.',
+    subtitle: '1봉 조리법과 끓는 물 타이머를 맞춥니다.',
     startButton: '🍜 라면 시작',
     totalLabel: '총 조리',
     doneLabel: '라면 완료',
     doneStatus: '완료됨',
     finishTitle: '라면 완료 시점',
-    finishSub: '조금 더 조리하거나 바로 마무리하세요.',
+    finishSub: '조금 더 끓이거나 바로 마무리하세요.',
     finishButton: '조리 완료',
     extensionChoices: [
       { label: '+15초', sec: 15 },
@@ -3016,7 +3503,7 @@ const TIMER_PROFILES = {
     label: '계란',
     chip: 'EGG',
     title: '계란 타이머',
-    subtitle: '냉장과 상온, 반숙과 완숙 시간을 바로 맞춥니다.',
+    subtitle: '냉장 / 상온 상태와 반숙 / 완숙 시간을 바로 맞춥니다.',
     startButton: '🥚 계란 시작',
     totalLabel: '총 삶기',
     doneLabel: '계란 완료',
@@ -3046,6 +3533,7 @@ let eggState = loadSelectedEggState();
 let selectedEggPresetId = eggState.selectedPresetId;
 let selectedEggCold = eggState.cold;
 let roastFilterState = loadRoastFilterState();
+let roastFavoriteIds = loadRoastFavorites();
 let roastListScrollMode = null;
 let ramenFilterState = loadRamenFilterState();
 let ramenFavoriteIds = loadRamenFavorites();
@@ -3108,7 +3596,7 @@ function ramenSortScore(preset) {
   return RAMEN_POPULARITY[preset.id] || 0;
 }
 function loadRamenFilterState() {
-  const fallback = { company: 'all', kind: 'all', sort: 'popular', favoritesOnly: false };
+  const fallback = { company: 'all', kind: 'all', sort: 'popular', favoritesOnly: false, query: '' };
   try {
     const raw = localStorage.getItem(RAMEN_FILTER_STORAGE_KEY);
     if (!raw) return fallback;
@@ -3121,7 +3609,8 @@ function normalizeRamenFilterState(value) {
   const company = value && companyList.has(value.company) ? value.company : 'all';
   const kind = value && ['all', 'boil', 'mix'].includes(value.kind) ? value.kind : 'all';
   const sort = value && ['popular', 'alpha'].includes(value.sort) ? value.sort : 'popular';
-  return { company, kind, sort, favoritesOnly: Boolean(value?.favoritesOnly) };
+  const query = value && typeof value.query === 'string' ? value.query.slice(0, 48) : '';
+  return { company, kind, sort, favoritesOnly: Boolean(value?.favoritesOnly), query };
 }
 function saveRamenFilterState() {
   try {
@@ -3148,10 +3637,21 @@ function isRamenFavorite(id) {
   return ramenFavoriteIds.has(id);
 }
 function filteredRamenPresets() {
+  const query = (ramenFilterState.query || '').trim().toLowerCase();
   return RAMEN_PRESETS.filter(preset => {
     if (ramenFilterState.company !== 'all' && preset.maker !== ramenFilterState.company) return false;
     if (ramenFilterState.kind !== 'all' && ramenKind(preset) !== ramenFilterState.kind) return false;
     if (ramenFilterState.favoritesOnly && !isRamenFavorite(preset.id)) return false;
+    if (query) {
+      const haystack = [
+        preset.name,
+        preset.maker,
+        preset.type,
+        preset.kind,
+        preset.guide,
+      ].join(' ').toLowerCase();
+      if (!haystack.includes(query)) return false;
+    }
     return true;
   }).sort((a, b) => {
     if (ramenFilterState.sort === 'alpha') {
@@ -3417,7 +3917,7 @@ function renderRamenFilterControls() {
 
   sortWrap.innerHTML = sortOptions.map(opt =>
     `<button class="preset-chip ${ramenFilterState.sort === opt.id ? 'active' : ''}" type="button" onclick="setRamenFilter('sort', '${opt.id}')">${htmlEscape(opt.label)}</button>`
-  ).join('');
+  ).join('') + `<input class="preset-search" type="text" inputmode="search" spellcheck="false" autocomplete="off" placeholder="검색" value="${htmlEscape(ramenFilterState.query || '')}" oninput="setRamenFilter('query', this.value)" aria-label="텍스트 검색 필터">`;
 
   brandWrap.innerHTML = brands.map(brand => {
     const label = brand === 'all' ? '전체' : brand;
@@ -3425,7 +3925,9 @@ function renderRamenFilterControls() {
   }).join('');
 
   favoritesToggle.classList.toggle('fav-on', ramenFilterState.favoritesOnly);
-  favoritesToggle.textContent = ramenFilterState.favoritesOnly ? '★ 즐겨찾기만' : '☆ 즐겨찾기만';
+  favoritesToggle.textContent = ramenFilterState.favoritesOnly ? '★' : '☆';
+  favoritesToggle.title = '즐겨찾기만 보기';
+  favoritesToggle.setAttribute('aria-label', '즐겨찾기만 보기');
 }
 function renderPresetMeta(badges) {
   return badges.map(badge => {
@@ -3541,7 +4043,7 @@ function setRamenFilter(part, value) {
   renderRamenBrowser();
 }
 function resetRamenFilters() {
-  ramenFilterState = { company: 'all', kind: 'all', sort: 'popular', favoritesOnly: false };
+  ramenFilterState = { company: 'all', kind: 'all', sort: 'popular', favoritesOnly: false, query: '' };
   saveRamenFilterState();
   ramenListScrollMode = 'filter';
   renderRamenBrowser();
@@ -3599,7 +4101,7 @@ function renderManduFilterControls() {
 
   sortWrap.innerHTML = sortOptions.map(opt =>
     `<button class="preset-chip ${manduFilterState.sort === opt.id ? 'active' : ''}" type="button" onclick="setCurrentPresetFilter('sort', '${opt.id}')">${htmlEscape(opt.label)}</button>`
-  ).join('');
+  ).join('') + `<input class="preset-search" type="text" inputmode="search" spellcheck="false" autocomplete="off" placeholder="검색" value="${htmlEscape(manduFilterState.query || '')}" oninput="setCurrentPresetFilter('query', this.value)" aria-label="텍스트 검색 필터">`;
 
   brandWrap.innerHTML = brands.map(brand => {
     const label = brand === 'all' ? '전체' : brand;
@@ -3614,7 +4116,9 @@ function renderManduFilterControls() {
   ).join('');
 
   favoritesToggle.classList.toggle('fav-on', manduFilterState.favoritesOnly);
-  favoritesToggle.textContent = manduFilterState.favoritesOnly ? '★ 즐겨찾기만' : '☆ 즐겨찾기만';
+  favoritesToggle.textContent = manduFilterState.favoritesOnly ? '★' : '☆';
+  favoritesToggle.title = '즐겨찾기만 보기';
+  favoritesToggle.setAttribute('aria-label', '즐겨찾기만 보기');
 }
 function renderManduDetail() {
   const preset = manduPresetById(selectedManduPresetId);
@@ -3830,7 +4334,7 @@ function setManduFilter(part, value) {
   renderManduBrowser();
 }
 function resetManduFilters() {
-  manduFilterState = { company: 'all', kind: 'all', sort: 'popular', favoritesOnly: false };
+  manduFilterState = { company: 'all', kind: 'all', sort: 'popular', favoritesOnly: false, query: '' };
   saveManduFilterState();
   manduListScrollMode = 'filter';
   renderManduBrowser();
@@ -3886,9 +4390,7 @@ function renderRoastFilterControls() {
   brandWrap.hidden = false;
   sortWrap.hidden = false;
   stateWrap.hidden = false;
-  favoritesToggle.hidden = true;
-  favoritesToggle.classList.remove('fav-on');
-  favoritesToggle.textContent = '☆ 즐겨찾기만';
+  favoritesToggle.hidden = false;
 
   const kindOptions = [
     { id: 'all', label: '전체' },
@@ -3901,7 +4403,7 @@ function renderRoastFilterControls() {
     { id: 'popular', label: '추천순' },
     { id: 'alpha', label: '가나다순' },
   ];
-  const processOptions = ['all', '내추럴', '워시드'];
+  const processOptions = ['all', '내추럴', '워시드', '디카페인'];
 
   kindWrap.innerHTML = kindOptions.map(opt =>
     `<button class="preset-chip ${roastFilterState.level === opt.id ? 'active' : ''}" type="button" onclick="setRoastFilter('level', '${opt.id}')">${htmlEscape(opt.label)}</button>`
@@ -3920,6 +4422,11 @@ function renderRoastFilterControls() {
     const label = process === 'all' ? '전체' : process;
     return `<button class="preset-chip ${roastFilterState.process === process ? 'active' : ''}" type="button" onclick="setRoastFilter('process', '${process}')">${htmlEscape(label)}</button>`;
   }).join('');
+  favoritesToggle.classList.toggle('fav-on', roastFilterState.favoritesOnly);
+  favoritesToggle.textContent = roastFilterState.favoritesOnly ? '★' : '☆';
+  favoritesToggle.title = '즐겨찾기만 보기';
+  favoritesToggle.setAttribute('aria-label', '즐겨찾기만 보기');
+  favoritesToggle.hidden = false;
 }
 function renderRoastDetail() {
   const preset = roastPresetById(selectedRoastPresetId);
@@ -3943,10 +4450,10 @@ function renderRoastDetail() {
   sourceLink.title = preset.sourceLabel;
   sourceLink.hidden = false;
   sourceLink.textContent = '출처 보기';
-  favBtn.hidden = true;
-  favBtn.classList.remove('on');
-  favBtn.textContent = '';
-  favBtn.removeAttribute('aria-pressed');
+  favBtn.classList.toggle('on', isRoastFavorite(preset.id));
+  favBtn.textContent = isRoastFavorite(preset.id) ? '★' : '☆';
+  favBtn.setAttribute('aria-pressed', String(isRoastFavorite(preset.id)));
+  favBtn.hidden = false;
   if (detailActions) detailActions.hidden = false;
 }
 function renderRoastList() {
@@ -3969,19 +4476,29 @@ function renderRoastList() {
 
   listEl.innerHTML = list.map(preset => {
     const selected = preset.id === selectedRoastPresetId;
+    const favorite = isRoastFavorite(preset.id);
     return `
       <div class="preset-card ${selected ? 'selected' : ''}" role="button" tabindex="0" data-select="${htmlEscape(preset.id)}" aria-pressed="${String(selected)}">
         <span class="preset-card-label">${htmlEscape(preset.name)}</span>
+        <button class="preset-card-fav ${favorite ? 'on' : ''}" type="button" data-fav="${htmlEscape(preset.id)}" aria-label="${htmlEscape(`${preset.name} 즐겨찾기`)}">${favorite ? '★' : '☆'}</button>
       </div>
     `;
   }).join('');
 
   listEl.onclick = e => {
+    const favBtn = e.target.closest('[data-fav]');
+    if (favBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleRoastFavorite(favBtn.dataset.fav);
+      return;
+    }
     const card = e.target.closest('[data-select]');
     if (!card) return;
     selectRoastPreset(card.dataset.select);
   };
   listEl.onkeydown = e => {
+    if (e.target.closest('[data-fav]')) return;
     if (e.key !== 'Enter' && e.key !== ' ') return;
     const card = e.target.closest('[data-select]');
     if (!card) return;
@@ -4017,10 +4534,20 @@ function setRoastFilter(part, value) {
   renderRoastBrowser();
 }
 function resetRoastFilters() {
-  roastFilterState = { originGroup: 'all', level: 'all', process: 'all', sort: 'popular', query: '' };
+  roastFilterState = { originGroup: 'all', level: 'all', process: 'all', sort: 'popular', query: '', favoritesOnly: false };
   saveRoastFilterState();
   roastListScrollMode = 'filter';
   renderRoastBrowser();
+}
+function toggleRoastFavorite(id = selectedRoastPresetId) {
+  if (!id) return;
+  if (roastFavoriteIds.has(id)) roastFavoriteIds.delete(id);
+  else roastFavoriteIds.add(id);
+  saveRoastFavorites();
+  renderRoastBrowser();
+}
+function toggleSelectedRoastFavorite() {
+  toggleRoastFavorite(selectedRoastPresetId);
 }
 function applyRoastPreset(id = selectedRoastPresetId) {
   if (activeProfileId !== 'roast' || isProfileSwitchLocked()) return;
@@ -4062,12 +4589,12 @@ function resetCurrentPresetFilters() {
   else if (activeProfileId === 'egg') resetEggSelection();
 }
 function toggleCurrentPresetFavoritesOnly() {
-  if (activeProfileId === 'roast') return;
+  if (activeProfileId === 'roast') setRoastFilter('favoritesOnly', !roastFilterState.favoritesOnly);
   if (activeProfileId === 'ramen') toggleRamenFavoritesOnly();
   else if (activeProfileId === 'mandu') toggleManduFavoritesOnly();
 }
 function toggleSelectedCurrentPresetFavorite() {
-  if (activeProfileId === 'roast') return;
+  if (activeProfileId === 'roast') toggleSelectedRoastFavorite();
   if (activeProfileId === 'ramen') toggleSelectedRamenFavorite();
   else if (activeProfileId === 'mandu') toggleSelectedManduFavorite();
 }

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'step-timer-v8';
+const CACHE_NAME = 'step-timer-v12';
 const ASSETS = [
   './',
   './index.html',
