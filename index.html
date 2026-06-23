@@ -69,6 +69,18 @@ body[data-profile="ramen"] {
   --done-text: #ffd1b5;
   --done-shadow: rgba(255,111,71,0.18);
 }
+body[data-profile="egg"] {
+  --accent: #ffc84d;
+  --accent-strong: #fff0b0;
+  --accent-dim: #7a5d1b;
+  --accent-bg: #2d2206;
+  --ink-on-accent: #1b1404;
+  --focus: #fff0b0;
+  --done-bg: #2d2206;
+  --done-border: #ffc84d;
+  --done-text: #fff0b0;
+  --done-shadow: rgba(255,200,77,0.14);
+}
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 button, input, select { font: inherit; }
 [hidden] { display: none !important; }
@@ -184,6 +196,7 @@ body {
 }
 .ext-btn:active { background:var(--surface); }
 .ext-btn.highlight { background:var(--done-bg); border-color:var(--done-border); color:var(--done-text); }
+.ext-btn.highlight:active { background: var(--done-bg); }
 #ext-finish {
   background:transparent; border:1px solid var(--done-border); border-radius:12px;
   color:var(--done-text); font-family:'DM Sans',sans-serif; font-size:14px; font-weight:700;
@@ -236,7 +249,7 @@ body.timer-active { align-items: center; }
   font-family: 'DM Mono', monospace; font-size: 11px; white-space: nowrap;
 }
 .mode-tabs {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px;
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px;
 }
 .mode-tab {
   min-height: 40px; border: 1px solid var(--border); border-radius: 9px;
@@ -330,14 +343,10 @@ body.timer-active .site-footer {
   display: flex; flex-direction: column; gap: 10px;
 }
 .preset-head {
-  display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
 }
 .preset-head-actions {
   display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end;
-}
-.preset-count {
-  color: var(--text-dim); font-size: 11px; font-weight: 700; line-height: 1.35;
-  margin-top: 4px;
 }
 .preset-reset {
   min-height: 34px; border: 1px solid var(--border); border-radius: 9px;
@@ -476,6 +485,61 @@ body.timer-active .site-footer {
 }
 .preset-card-fav.on {
   color: var(--accent-strong);
+}
+body[data-profile="egg"] #preset-section {
+  gap: 8px;
+}
+body[data-profile="egg"] .preset-head {
+  align-items: center;
+}
+body[data-profile="egg"] .preset-head-actions {
+  gap: 6px;
+}
+body[data-profile="egg"] .preset-list-shell {
+  height: auto;
+  overflow: visible;
+}
+body[data-profile="egg"] .preset-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+body[data-profile="egg"] .preset-card {
+  justify-content: center;
+  min-height: 36px;
+  padding: 6px 8px;
+}
+body[data-profile="egg"] .preset-card-label {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+}
+body[data-profile="egg"] .preset-detail {
+  padding: 8px;
+  gap: 4px;
+}
+body[data-profile="egg"] #preset-name {
+  font-size: 13px;
+}
+body[data-profile="egg"] .preset-detail-meta {
+  gap: 3px;
+}
+body[data-profile="egg"] .preset-detail-badge {
+  min-height: 20px;
+  padding: 0 6px;
+  font-size: 9px;
+}
+body[data-profile="egg"] .preset-detail-badge strong {
+  font-size: 9px;
+}
+body[data-profile="egg"] .preset-recipe-label {
+  margin-top: 0;
+}
+body[data-profile="egg"] #preset-guide {
+  min-height: 40px;
+  max-height: 50px;
+  font-size: 11px;
+  line-height: 1.4;
 }
 
 /* start / reset — same height as chips */
@@ -861,12 +925,7 @@ body.timer-active .site-footer {
   <div id="ext-content">
     <div id="ext-title">완료 시점</div>
     <div id="ext-sub">추가 시간을 선택하거나 마무리하세요.</div>
-    <div class="ext-btns">
-      <button class="ext-btn" data-mins="3" onclick="extendRoast(3)">3분 추가</button>
-      <button class="ext-btn" data-mins="4" onclick="extendRoast(4)">4분 추가</button>
-      <button class="ext-btn" data-mins="5" onclick="extendRoast(5)">5분 추가</button>
-      <button class="ext-btn" data-mins="6" onclick="extendRoast(6)">6분 추가</button>
-    </div>
+    <div class="ext-btns" id="ext-choices"></div>
     <button id="ext-finish" onclick="finishRoast()">완료</button>
   </div>
 </div>
@@ -886,6 +945,7 @@ body.timer-active .site-footer {
       <button class="mode-tab" type="button" role="tab" data-profile-tab="roast" onclick="switchProfile('roast')">☕ 로스팅</button>
       <button class="mode-tab" type="button" role="tab" data-profile-tab="mandu" onclick="switchProfile('mandu')">🥟 만두</button>
       <button class="mode-tab" type="button" role="tab" data-profile-tab="ramen" onclick="switchProfile('ramen')">🍜 라면</button>
+      <button class="mode-tab" type="button" role="tab" data-profile-tab="egg" onclick="switchProfile('egg')">🥚 계란</button>
     </div>
   </header>
 
@@ -927,7 +987,6 @@ body.timer-active .site-footer {
     <div class="preset-head">
       <div>
         <span class="section-label" id="preset-section-label">라면 프리셋</span>
-        <div class="preset-count" id="preset-count">-</div>
       </div>
       <div class="preset-head-actions">
         <button class="preset-apply" type="button" onclick="applyCurrentPreset()">기본값 적용</button>
@@ -2004,6 +2063,101 @@ function filteredManduPresets() {
   });
 }
 
+const EGG_STATE_STORAGE_KEY = 'step-timer:egg-state:v1';
+const EGG_PRESETS = [
+  {
+    id: 'egg-soft',
+    name: '반숙',
+    coldSec: 390,
+    roomSec: 360,
+    coldGuide: '냉장 달걀은 끓는 물 기준 6분 30초 전후가 가장 무난합니다.',
+    roomGuide: '상온 달걀은 끓는 물 기준 6분 전후가 가장 무난합니다.',
+  },
+  {
+    id: 'egg-medium',
+    name: '중간반숙',
+    coldSec: 480,
+    roomSec: 450,
+    coldGuide: '냉장 달걀은 끓는 물 기준 8분 전후가 보편적입니다.',
+    roomGuide: '상온 달걀은 끓는 물 기준 7분 30초 전후가 보편적입니다.',
+  },
+  {
+    id: 'egg-hard',
+    name: '완숙',
+    coldSec: 600,
+    roomSec: 570,
+    coldGuide: '냉장 달걀은 끓는 물 기준 10분 전후가 가장 흔합니다.',
+    roomGuide: '상온 달걀은 끓는 물 기준 9분 30초 전후가 가장 흔합니다.',
+  },
+];
+function eggPresetById(id) {
+  return EGG_PRESETS.find(preset => preset.id === id) || EGG_PRESETS[0];
+}
+function loadSelectedEggState() {
+  try {
+    const raw = localStorage.getItem(EGG_STATE_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.selectedPresetId && eggPresetById(parsed.selectedPresetId).id === parsed.selectedPresetId) {
+        return {
+          selectedPresetId: parsed.selectedPresetId,
+          cold: typeof parsed.cold === 'boolean' ? parsed.cold : true,
+        };
+      }
+    }
+  } catch(e) {}
+  return { selectedPresetId: EGG_PRESETS[0].id, cold: true };
+}
+function saveSelectedEggState() {
+  try {
+    localStorage.setItem(EGG_STATE_STORAGE_KEY, JSON.stringify({
+      selectedPresetId: selectedEggPresetId,
+      cold: selectedEggCold,
+    }));
+  } catch(e) {}
+}
+function setSelectedEggPreset(id) {
+  const preset = eggPresetById(id);
+  selectedEggPresetId = preset.id;
+  saveSelectedEggState();
+  return preset;
+}
+function setEggColdState(value) {
+  const next = Boolean(value);
+  if (selectedEggCold === next) {
+    if (activeProfileId === 'egg') renderEggBrowser();
+    return;
+  }
+  selectedEggCold = next;
+  saveSelectedEggState();
+  if (activeProfileId === 'egg' && !isProfileSwitchLocked()) {
+    applyEggPreset(selectedEggPresetId);
+    return;
+  }
+  if (activeProfileId === 'egg') renderEggBrowser();
+}
+function eggTotalSec(preset, cold = selectedEggCold) {
+  return cold ? preset.coldSec : preset.roomSec;
+}
+function eggGuideText(preset, cold = selectedEggCold) {
+  return cold ? preset.coldGuide : preset.roomGuide;
+}
+function eggStepsFor(preset, cold = selectedEggCold) {
+  const sec = eggTotalSec(preset, cold);
+  const stateLabel = cold ? '냉장' : '상온';
+  return [{
+    name: '삶기',
+    icon: '🥚',
+    durationSec: sec,
+    emoji: '🥚',
+    alertMsg: `${stateLabel} ${preset.name} 시간이 끝났습니다. 찬물에 옮겨 식혀 주세요.`,
+    actionLabel: '찬물에 옮기기',
+  }];
+}
+function eggMilestones(id = selectedEggPresetId, cold = selectedEggCold) {
+  return eggStepsFor(eggPresetById(id), cold).map(step => ({ ...step }));
+}
+
 // durationSec = 각 구간 시간 (독립)
 // 알람 발화 시점 = 앞 구간들의 합 (누적)
 const TIMER_PROFILES = {
@@ -2019,7 +2173,12 @@ const TIMER_PROFILES = {
     finishTitle: '로스팅 완료 시점',
     finishSub: '더 구울 시간을 선택하거나 쿨링을 시작하세요.',
     finishButton: '쿨링 시작',
-    extendVerb: '더 굽기',
+    extensionChoices: [
+      { label: '+3분', sec: 180 },
+      { label: '+4분', sec: 240 },
+      { label: '+5분', sec: 300 },
+      { label: '+6분', sec: 360 },
+    ],
     preheat: true,
     defaultPreheatSec: 600,
     defaultTargetTemp: 220,
@@ -2052,7 +2211,12 @@ const TIMER_PROFILES = {
     finishTitle: '만두 완료 시점',
     finishSub: '조금 더 익히거나 조리를 마무리하세요.',
     finishButton: '조리 완료',
-    extendVerb: '더 익히기',
+    extensionChoices: [
+      { label: '+30초', sec: 30 },
+      { label: '+1분', sec: 60 },
+      { label: '+2분', sec: 120 },
+      { label: '+3분', sec: 180 },
+    ],
     preheat: false,
     defaultPreheatSec: 0,
     defaultTargetTemp: 100,
@@ -2080,11 +2244,39 @@ const TIMER_PROFILES = {
     finishTitle: '라면 완료 시점',
     finishSub: '조금 더 조리하거나 바로 마무리하세요.',
     finishButton: '조리 완료',
-    extendVerb: '더 조리하기',
+    extensionChoices: [
+      { label: '+15초', sec: 15 },
+      { label: '+30초', sec: 30 },
+      { label: '+45초', sec: 45 },
+      { label: '+1분', sec: 60 },
+    ],
     preheat: false,
     defaultPreheatSec: 0,
     defaultTargetTemp: 100,
     milestones: ramenMilestones('nongshim-shin'),
+  },
+  egg: {
+    label: '계란',
+    chip: 'EGG',
+    title: '계란 타이머',
+    subtitle: '냉장과 상온, 반숙과 완숙 시간을 바로 맞춥니다.',
+    startButton: '🥚 계란 시작',
+    totalLabel: '총 삶기',
+    doneLabel: '계란 완료',
+    doneStatus: '🧊 식히는 중',
+    finishTitle: '계란 완료 시점',
+    finishSub: '조금 더 익히거나 바로 식혀 주세요.',
+    finishButton: '찬물에 옮기기',
+    extensionChoices: [
+      { label: '+15초', sec: 15 },
+      { label: '+30초', sec: 30 },
+      { label: '+45초', sec: 45 },
+      { label: '+1분', sec: 60 },
+    ],
+    preheat: false,
+    defaultPreheatSec: 0,
+    defaultTargetTemp: 100,
+    milestones: eggMilestones('egg-soft', true),
   },
 };
 
@@ -2092,6 +2284,9 @@ let activeProfileId = loadActiveProfileId();
 let selectedRamenPresetId = loadSelectedRamenPresetId();
 let selectedManduPresetId = loadSelectedManduPresetId();
 let selectedManduFrozen = loadSelectedManduFrozen();
+let eggState = loadSelectedEggState();
+let selectedEggPresetId = eggState.selectedPresetId;
+let selectedEggCold = eggState.cold;
 let ramenFilterState = loadRamenFilterState();
 let ramenFavoriteIds = loadRamenFavorites();
 let ramenListScrollMode = null;
@@ -2135,6 +2330,7 @@ function currentProfile() {
 function defaultMilestonesFor(id = activeProfileId) {
   if (id === 'ramen') return ramenMilestones();
   if (id === 'mandu') return manduMilestones();
+  if (id === 'egg') return eggMilestones();
   const profile = TIMER_PROFILES[id] || TIMER_PROFILES.roast;
   return profile.milestones.map(ms => ({ ...ms }));
 }
@@ -2331,6 +2527,10 @@ function saveRecipe() {
       payload.selectedPresetId = selectedManduPresetId;
       payload.manduFrozen = selectedManduFrozen;
     }
+    if (activeProfileId === 'egg') {
+      payload.selectedPresetId = selectedEggPresetId;
+      payload.eggCold = selectedEggCold;
+    }
     localStorage.setItem(recipeKey(), JSON.stringify(payload));
   } catch(e) {}
 }
@@ -2351,6 +2551,15 @@ function loadRecipe() {
     }
     if (activeProfileId === 'mandu' && saved.selectedPresetId && manduPresetById(saved.selectedPresetId).id === saved.selectedPresetId) {
       setSelectedManduPreset(saved.selectedPresetId);
+      MS_DEFAULTS = defaultMilestonesFor(activeProfileId);
+      S.milestones = MS_DEFAULTS.map(d => ({ ...d, reached: false }));
+    }
+    if (activeProfileId === 'egg' && typeof saved.eggCold === 'boolean') {
+      selectedEggCold = saved.eggCold;
+      saveSelectedEggState();
+    }
+    if (activeProfileId === 'egg' && saved.selectedPresetId && eggPresetById(saved.selectedPresetId).id === saved.selectedPresetId) {
+      setSelectedEggPreset(saved.selectedPresetId);
       MS_DEFAULTS = defaultMilestonesFor(activeProfileId);
       S.milestones = MS_DEFAULTS.map(d => ({ ...d, reached: false }));
     }
@@ -2396,9 +2605,18 @@ function renderRamenFilterControls() {
   const kindWrap = document.getElementById('preset-kind-filters');
   const brandWrap = document.getElementById('preset-brand-filters');
   const sortWrap = document.getElementById('preset-sort-filters');
+  const stateWrap = document.getElementById('preset-state-filters');
   const favoritesToggle = document.getElementById('preset-favorites-toggle');
 
   if (!kindWrap || !brandWrap || !sortWrap || !favoritesToggle) return;
+  kindWrap.hidden = false;
+  brandWrap.hidden = false;
+  sortWrap.hidden = false;
+  if (stateWrap) {
+    stateWrap.hidden = true;
+    stateWrap.innerHTML = '';
+  }
+  favoritesToggle.hidden = false;
 
   const kindOptions = [
     { id: 'all', label: '전체' },
@@ -2439,6 +2657,7 @@ function renderRamenDetail() {
   const sourceLink = document.getElementById('preset-source-link');
   const favBtn = document.getElementById('preset-fav-btn');
   const metaEl = document.getElementById('preset-detail-meta');
+  const detailActions = sourceLink?.closest('.preset-detail-actions');
 
   document.getElementById('preset-name').textContent = `${preset.maker} ${preset.name}`;
   metaEl.innerHTML = renderPresetMeta([
@@ -2447,16 +2666,17 @@ function renderRamenDetail() {
   ]);
   document.getElementById('preset-guide').textContent = preset.guide;
   sourceLink.href = preset.sourceUrl;
+  sourceLink.hidden = false;
+  sourceLink.textContent = '출처 보기';
   favBtn.classList.toggle('on', isRamenFavorite(preset.id));
   favBtn.textContent = isRamenFavorite(preset.id) ? '★' : '☆';
   favBtn.setAttribute('aria-pressed', String(isRamenFavorite(preset.id)));
+  favBtn.hidden = false;
+  if (detailActions) detailActions.hidden = false;
 }
 function renderRamenList() {
   const list = filteredRamenPresets();
   const listEl = document.getElementById('ramen-list');
-  const countEl = document.getElementById('preset-count');
-  const totalFav = [...ramenFavoriteIds].filter(id => RAMEN_PRESETS.some(p => p.id === id)).length;
-  countEl.textContent = `전체 ${RAMEN_PRESETS.length}개 · 즐겨찾기 ${totalFav}개`;
 
   if (!listEl) return;
   if (!list.length) {
@@ -2576,6 +2796,11 @@ function renderManduFilterControls() {
   const favoritesToggle = document.getElementById('preset-favorites-toggle');
 
   if (!kindWrap || !brandWrap || !sortWrap || !stateWrap || !favoritesToggle) return;
+  kindWrap.hidden = false;
+  brandWrap.hidden = false;
+  sortWrap.hidden = false;
+  stateWrap.hidden = false;
+  favoritesToggle.hidden = false;
 
   const kindOrder = ['교자', '왕만두', '물만두', '딤섬', '얇은피', '생만두', '기타'];
   const kinds = ['all', ...kindOrder.filter(kind => MANDU_PRESETS.some(preset => manduKind(preset) === kind))];
@@ -2614,6 +2839,7 @@ function renderManduDetail() {
   const sourceLink = document.getElementById('preset-source-link');
   const favBtn = document.getElementById('preset-fav-btn');
   const metaEl = document.getElementById('preset-detail-meta');
+  const detailActions = sourceLink?.closest('.preset-detail-actions');
 
   document.getElementById('preset-name').textContent = preset.name;
   metaEl.innerHTML = renderPresetMeta([
@@ -2624,16 +2850,17 @@ function renderManduDetail() {
   document.getElementById('preset-guide').textContent = manduGuideText(preset);
   sourceLink.href = preset.sourceUrl;
   sourceLink.title = preset.sourceLabel;
+  sourceLink.hidden = false;
+  sourceLink.textContent = '출처 보기';
   favBtn.classList.toggle('on', isManduFavorite(preset.id));
   favBtn.textContent = isManduFavorite(preset.id) ? '★' : '☆';
   favBtn.setAttribute('aria-pressed', String(isManduFavorite(preset.id)));
+  favBtn.hidden = false;
+  if (detailActions) detailActions.hidden = false;
 }
 function renderManduList() {
   const list = filteredManduPresets();
   const listEl = document.getElementById('ramen-list');
-  const countEl = document.getElementById('preset-count');
-  const totalFav = [...manduFavoriteIds].filter(id => MANDU_PRESETS.some(p => p.id === id)).length;
-  countEl.textContent = `전체 ${MANDU_PRESETS.length}개 · 즐겨찾기 ${totalFav}개`;
 
   if (!listEl) return;
   if (!list.length) {
@@ -2697,6 +2924,112 @@ function renderManduBrowser() {
   renderManduFilterControls();
   renderManduDetail();
   renderManduList();
+}
+function renderEggFilterControls() {
+  const kindWrap = document.getElementById('preset-kind-filters');
+  const brandWrap = document.getElementById('preset-brand-filters');
+  const sortWrap = document.getElementById('preset-sort-filters');
+  const stateWrap = document.getElementById('preset-state-filters');
+  const favoritesToggle = document.getElementById('preset-favorites-toggle');
+
+  if (!kindWrap || !brandWrap || !sortWrap || !stateWrap || !favoritesToggle) return;
+  kindWrap.hidden = true; kindWrap.innerHTML = '';
+  brandWrap.hidden = true; brandWrap.innerHTML = '';
+  sortWrap.hidden = true; sortWrap.innerHTML = '';
+  favoritesToggle.hidden = true;
+  favoritesToggle.classList.remove('fav-on');
+  favoritesToggle.textContent = '☆ 즐겨찾기만';
+  stateWrap.hidden = false;
+  stateWrap.innerHTML = [
+    { label: '냉장', value: true },
+    { label: '상온', value: false },
+  ].map(opt =>
+    `<button class="preset-chip ${selectedEggCold === opt.value ? 'active' : ''}" type="button" onclick="setEggColdState(${opt.value})">${htmlEscape(opt.label)}</button>`
+  ).join('');
+}
+function renderEggDetail() {
+  const preset = eggPresetById(selectedEggPresetId);
+  const sourceLink = document.getElementById('preset-source-link');
+  const favBtn = document.getElementById('preset-fav-btn');
+  const metaEl = document.getElementById('preset-detail-meta');
+  const detailActions = sourceLink?.closest('.preset-detail-actions');
+  const nameEl = document.getElementById('preset-name');
+
+  nameEl.textContent = `${selectedEggCold ? '냉장' : '상온'} ${preset.name}`;
+  metaEl.innerHTML = renderPresetMeta([
+    { label: '기준', value: '끓는 물' },
+    { label: '상태', value: selectedEggCold ? '냉장' : '상온' },
+    { label: '총', value: fmt(eggTotalSec(preset)) },
+  ]);
+  document.getElementById('preset-guide').textContent = eggGuideText(preset);
+  sourceLink.hidden = true;
+  sourceLink.removeAttribute('href');
+  sourceLink.textContent = '';
+  favBtn.hidden = true;
+  favBtn.classList.remove('on');
+  favBtn.textContent = '';
+  favBtn.removeAttribute('aria-pressed');
+  if (detailActions) detailActions.hidden = true;
+}
+function renderEggList() {
+  const listEl = document.getElementById('ramen-list');
+
+  if (!listEl) return;
+  listEl.innerHTML = EGG_PRESETS.map(preset => {
+    const selected = preset.id === selectedEggPresetId;
+    return `
+      <div class="preset-card ${selected ? 'selected' : ''}" role="button" tabindex="0" data-select="${htmlEscape(preset.id)}" aria-pressed="${String(selected)}">
+        <span class="preset-card-label">${htmlEscape(preset.name)}</span>
+      </div>
+    `;
+  }).join('');
+
+  listEl.onclick = e => {
+    const card = e.target.closest('[data-select]');
+    if (!card) return;
+    selectEggPreset(card.dataset.select);
+  };
+  listEl.onkeydown = e => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const card = e.target.closest('[data-select]');
+    if (!card) return;
+    e.preventDefault();
+    selectEggPreset(card.dataset.select);
+  };
+}
+function renderEggBrowser() {
+  if (activeProfileId !== 'egg') return;
+  renderEggFilterControls();
+  renderEggDetail();
+  renderEggList();
+}
+function applyEggPreset(id = selectedEggPresetId) {
+  if (activeProfileId !== 'egg' || isProfileSwitchLocked()) return;
+  if (S.extActive) _closeExtModal();
+  clearAllAlerts();
+  const preset = eggPresetById(id);
+  setSelectedEggPreset(preset.id);
+  MS_DEFAULTS = eggMilestones(preset.id, selectedEggCold);
+  resetMasterToIdleState();
+  S.milestones = MS_DEFAULTS.map(d => ({ ...d, reached: false }));
+  saveRecipe();
+  renderEggBrowser();
+  renderMilestones();
+  syncRingAndCountdown();
+  setRoastMode();
+}
+function resetEggSelection() {
+  selectedEggPresetId = EGG_PRESETS[0].id;
+  selectedEggCold = true;
+  saveSelectedEggState();
+  if (activeProfileId === 'egg' && !isProfileSwitchLocked()) {
+    applyEggPreset(selectedEggPresetId);
+    return;
+  }
+  if (activeProfileId === 'egg') renderEggBrowser();
+}
+function selectEggPreset(id) {
+  applyEggPreset(id);
 }
 function toggleManduFavorite(id = selectedManduPresetId) {
   if (!id) return;
@@ -2762,14 +3095,17 @@ function selectManduPreset(id) {
 function renderCurrentPresetBrowser() {
   if (activeProfileId === 'ramen') renderRamenBrowser();
   else if (activeProfileId === 'mandu') renderManduBrowser();
+  else if (activeProfileId === 'egg') renderEggBrowser();
 }
 function applyCurrentPreset() {
   if (activeProfileId === 'ramen') applyRamenPreset(selectedRamenPresetId);
   else if (activeProfileId === 'mandu') applyManduPreset(selectedManduPresetId);
+  else if (activeProfileId === 'egg') applyEggPreset(selectedEggPresetId);
 }
 function resetCurrentPresetFilters() {
   if (activeProfileId === 'ramen') resetRamenFilters();
   else if (activeProfileId === 'mandu') resetManduFilters();
+  else if (activeProfileId === 'egg') resetEggSelection();
 }
 function toggleCurrentPresetFavoritesOnly() {
   if (activeProfileId === 'ramen') toggleRamenFavoritesOnly();
@@ -2786,24 +3122,28 @@ function setCurrentPresetFilter(part, value) {
 function selectCurrentPreset(id) {
   if (activeProfileId === 'ramen') selectRamenPreset(id);
   else if (activeProfileId === 'mandu') selectManduPreset(id);
+  else if (activeProfileId === 'egg') selectEggPreset(id);
 }
 function updateProfileUI() {
   const profile = currentProfile();
   const presetSection = document.getElementById('preset-section');
   const presetSectionLabel = document.getElementById('preset-section-label');
+  const presetReset = document.querySelector('.preset-reset');
   document.body.dataset.profile = activeProfileId;
   document.getElementById('app-title').textContent = profile.title;
   document.getElementById('app-subtitle').textContent = profile.subtitle;
   document.getElementById('profile-chip').textContent = profile.chip;
   document.getElementById('top-section').hidden = !profile.preheat;
-  if (presetSection) presetSection.hidden = !['ramen', 'mandu'].includes(activeProfileId);
+  if (presetSection) presetSection.hidden = !['ramen', 'mandu', 'egg'].includes(activeProfileId);
   if (presetSectionLabel) {
     presetSectionLabel.textContent =
       activeProfileId === 'ramen' ? '라면 프리셋' :
       activeProfileId === 'mandu' ? '만두 프리셋' :
+      activeProfileId === 'egg' ? '계란 프리셋' :
       '프리셋';
   }
-  if (activeProfileId === 'ramen' || activeProfileId === 'mandu') renderCurrentPresetBrowser();
+  if (presetReset) presetReset.textContent = activeProfileId === 'egg' ? '상태 초기화' : '필터 초기화';
+  if (activeProfileId === 'ramen' || activeProfileId === 'mandu' || activeProfileId === 'egg') renderCurrentPresetBrowser();
   if (profile.preheatAlarm) {
     S.preheatAlarm = { ...profile.preheatAlarm, reached: S.preheatAlarm.reached };
   }
@@ -3011,12 +3351,21 @@ function showExtModal() {
   S.extPending = false;
   S.extActive = true;
   const profile = currentProfile();
+  const choicesEl = document.getElementById('ext-choices');
   document.getElementById('ext-title').textContent = profile.finishTitle;
   document.getElementById('ext-sub').textContent = profile.finishSub;
   document.getElementById('ext-finish').textContent = profile.finishButton;
-  document.querySelectorAll('.ext-btn').forEach(btn => {
-    btn.textContent = `${btn.dataset.mins}분 ${profile.extendVerb}`;
-  });
+  const choices = profile.extensionChoices || [
+    { label: '3분', sec: 180 },
+    { label: '4분', sec: 240 },
+    { label: '5분', sec: 300 },
+    { label: '6분', sec: 360 },
+  ];
+  if (choicesEl) {
+    choicesEl.innerHTML = choices.map((choice, idx) =>
+      `<button class="ext-btn ${idx === 0 ? 'highlight' : ''}" type="button" data-seconds="${choice.sec}" onclick="extendCurrentTimer(${choice.sec})">${htmlEscape(choice.label)}</button>`
+    ).join('');
+  }
   openManagedModal('ext-modal', '.ext-btn');
   document.getElementById('flash-overlay').classList.add('flashing');
   startAlarm(); vibe();
@@ -3031,10 +3380,10 @@ function _closeExtModal() {
   document.getElementById('flash-overlay').classList.remove('flashing');
   stopAlarm();
 }
-function extendRoast(mins) {
+function extendCurrentTimer(seconds) {
   const elapsedMs = S.masterRunning ? Date.now() - S.masterStartTs : S.masterElapsed;
   S.masterElapsed = elapsedMs;
-  const addSec = mins * 60;
+  const addSec = seconds;
   const neededSec = elapsedMs / 1000 + addSec - totalDuration();
   lastMs().durationSec += Math.max(addSec, neededSec);
   S.extensionAddedSec += addSec;
@@ -3043,6 +3392,9 @@ function extendRoast(mins) {
   _closeExtModal();
   syncRingAndCountdown();
   renderMilestones();
+}
+function extendRoast(mins) {
+  extendCurrentTimer(mins * 60);
 }
 function finishRoast() {
   _closeExtModal(); stopMaster();
