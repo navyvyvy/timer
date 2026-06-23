@@ -364,6 +364,12 @@ body.timer-active .site-footer {
 .preset-sort-group {
   display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
 }
+.preset-search {
+  width: 86px; min-height: 20px; border: 1px solid var(--border);
+  border-radius: 4px; background: var(--surface2); color: var(--text);
+  font-size: 8.5px; font-weight: 700; padding: 0 6px; line-height: 1;
+}
+.preset-search::placeholder { color: var(--text-dim); }
 .preset-state-group {
   display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
 }
@@ -2193,6 +2199,7 @@ function roastMilestones(drySec, browningSec, developmentSec) {
     },
   ];
 }
+const COFFEESYS_BUSINESS_LIST_URL = 'https://m.coffeesys.co.kr/product/list.html?cate_no=107';
 
 const ROAST_PRESETS = [
   {
@@ -2603,6 +2610,244 @@ const ROAST_PRESETS = [
     sourceLabel: '커피시스 상품',
     sourceUrl: 'https://m.coffeesys.co.kr/',
   },
+  {
+    id: 'ethiopia-sidamo-g2-washed',
+    originCountry: '에티오피아',
+    originRegion: '시다모',
+    originGroup: '아프리카',
+    name: '시다모 G2 워시드',
+    variety: '에티오피안 헤일룸',
+    roastLevel: 'light',
+    process: '워시드',
+    chargeTemp: 195,
+    preheatTemp: 205,
+    preheatSec: 600,
+    milestones: roastMilestones(300, 180, 90),
+    guide: '예열 205°C 전후, 투입 195°C 전후, 1차 크랙은 7분 안팎, 총 9분 30초 전후가 무난합니다. 자스민, 레몬, 홍차, 복숭아 같은 밝은 향을 노려 보세요.',
+    sourceLabel: '커피시스 사업자 목록',
+    sourceUrl: COFFEESYS_BUSINESS_LIST_URL,
+  },
+  {
+    id: 'ethiopia-sidamo-g4-natural',
+    originCountry: '에티오피아',
+    originRegion: '시다모',
+    originGroup: '아프리카',
+    name: '시다모 G4 내추럴',
+    variety: '에티오피안 헤일룸',
+    roastLevel: 'light',
+    process: '내추럴',
+    chargeTemp: 194,
+    preheatTemp: 204,
+    preheatSec: 600,
+    milestones: roastMilestones(285, 190, 110),
+    guide: '예열 204°C 전후, 투입 194°C 전후, 1차 크랙은 7분 10초 안팎, 총 9분 45초 전후가 출발점입니다. 베리, 포도, 플럼 같은 과일 향을 살리기 좋습니다.',
+    sourceLabel: '커피시스 사업자 목록',
+    sourceUrl: COFFEESYS_BUSINESS_LIST_URL,
+  },
+  {
+    id: 'ethiopia-guji-g1-natural',
+    originCountry: '에티오피아',
+    originRegion: '구지',
+    originGroup: '아프리카',
+    name: '구지 G1 내추럴',
+    variety: '에티오피안 헤일룸',
+    roastLevel: 'light',
+    process: '내추럴',
+    chargeTemp: 194,
+    preheatTemp: 204,
+    preheatSec: 600,
+    milestones: roastMilestones(285, 190, 110),
+    guide: '예열 204°C 전후, 투입 194°C 전후, 1차 크랙은 7분 10초 안팎, 총 9분 45초 전후가 출발점입니다. 베리, 자몽, 포도 같은 달큰한 향을 살리기 좋습니다.',
+    sourceLabel: '커피시스 사업자 목록',
+    sourceUrl: COFFEESYS_BUSINESS_LIST_URL,
+  },
+  {
+    id: 'ethiopia-yirgacheffe-g1-koke-honey',
+    originCountry: '에티오피아',
+    originRegion: '예가체프',
+    originGroup: '아프리카',
+    name: '예가체프 G1 코케허니',
+    variety: '에티오피안 헤일룸',
+    roastLevel: 'light',
+    process: '허니',
+    chargeTemp: 195,
+    preheatTemp: 205,
+    preheatSec: 600,
+    milestones: roastMilestones(300, 180, 90),
+    guide: '예열 205°C 전후, 투입 195°C 전후, 1차 크랙은 7분 안팎, 총 9분 30초 전후가 출발점입니다. 꿀, 자스민, 레몬, 복숭아 같은 화사한 향이 잘 나옵니다.',
+    sourceLabel: '커피시스 사업자 목록',
+    sourceUrl: COFFEESYS_BUSINESS_LIST_URL,
+  },
+  {
+    id: 'kenya-nyeri-red-mountain',
+    originCountry: '케냐',
+    originRegion: '니에리',
+    originGroup: '아프리카',
+    name: 'AA 니에리 레드마운틴',
+    variety: 'SL28 / SL34',
+    roastLevel: 'light',
+    process: '워시드',
+    chargeTemp: 197,
+    preheatTemp: 206,
+    preheatSec: 600,
+    milestones: roastMilestones(310, 190, 100),
+    guide: '예열 206°C 전후, 투입 197°C 전후, 1차 크랙은 7분 20초 안팎, 총 10분 정도가 무난합니다. 블랙커런트, 자몽, 와인 같은 선명한 산미를 살려 보세요.',
+    sourceLabel: '커피시스 사업자 목록',
+    sourceUrl: COFFEESYS_BUSINESS_LIST_URL,
+  },
+  {
+    id: 'tanzania-aa-faq',
+    originCountry: '탄자니아',
+    originRegion: 'AA FAQ',
+    originGroup: '아프리카',
+    name: 'AA FAQ',
+    variety: '아라비카',
+    roastLevel: 'medium',
+    process: '워시드',
+    chargeTemp: 199,
+    preheatTemp: 210,
+    preheatSec: 630,
+    milestones: roastMilestones(320, 195, 120),
+    guide: '예열 210°C 전후, 투입 199°C 전후, 1차 크랙은 7분 45초 안팎, 총 10분 35초 전후가 무난합니다. 코코아, 감귤, 견과류의 균형을 잡기 좋습니다.',
+    sourceLabel: '커피시스 사업자 목록',
+    sourceUrl: COFFEESYS_BUSINESS_LIST_URL,
+  },
+  {
+    id: 'rwanda-aa-washed',
+    originCountry: '르완다',
+    originRegion: 'AA',
+    originGroup: '아프리카',
+    name: 'AA 워시드',
+    variety: '버본',
+    roastLevel: 'light',
+    process: '워시드',
+    chargeTemp: 196,
+    preheatTemp: 206,
+    preheatSec: 600,
+    milestones: roastMilestones(305, 185, 110),
+    guide: '예열 206°C 전후, 투입 196°C 전후, 1차 크랙은 7분 20초 안팎, 총 10분 전후가 기본값입니다. 레드애플, 베르가못, 홍차 같은 산뜻한 향이 잘 드러납니다.',
+    sourceLabel: '커피시스 사업자 목록',
+    sourceUrl: COFFEESYS_BUSINESS_LIST_URL,
+  },
+  {
+    id: 'guatemala-shb-ep',
+    originCountry: '과테말라',
+    originRegion: 'SHB EP',
+    originGroup: '중남미',
+    name: 'SHB EP',
+    variety: '부르봉 / 카투라',
+    roastLevel: 'medium',
+    process: '워시드',
+    chargeTemp: 200,
+    preheatTemp: 210,
+    preheatSec: 630,
+    milestones: roastMilestones(325, 195, 125),
+    guide: '예열 210°C 전후, 투입 200°C 전후, 1차 크랙은 7분 40초 안팎, 총 10분 45초 전후가 무난합니다. 초콜릿, 스파이스, 아몬드 같은 묵직한 단맛을 기대할 수 있습니다.',
+    sourceLabel: '커피시스 사업자 목록',
+    sourceUrl: COFFEESYS_BUSINESS_LIST_URL,
+  },
+  {
+    id: 'guatemala-antigua-panorama',
+    originCountry: '과테말라',
+    originRegion: '안티구아',
+    originGroup: '중남미',
+    name: 'SHB 안티구아 파노라마',
+    variety: '부르봉 / 카투라',
+    roastLevel: 'medium',
+    process: '워시드',
+    chargeTemp: 200,
+    preheatTemp: 210,
+    preheatSec: 630,
+    milestones: roastMilestones(325, 195, 125),
+    guide: '예열 210°C 전후, 투입 200°C 전후, 1차 크랙은 7분 40초 안팎, 총 10분 45초 전후가 무난합니다. 코코아, 아몬드, 오렌지 껍질 같은 균형을 살리기 좋습니다.',
+    sourceLabel: '커피시스 사업자 목록',
+    sourceUrl: COFFEESYS_BUSINESS_LIST_URL,
+  },
+  {
+    id: 'papua-new-guinea-a',
+    originCountry: '파푸아뉴기니',
+    originRegion: 'A',
+    originGroup: '아시아',
+    name: '파푸아뉴기니 A',
+    variety: '아라비카',
+    roastLevel: 'medium',
+    process: '워시드',
+    chargeTemp: 198,
+    preheatTemp: 209,
+    preheatSec: 630,
+    milestones: roastMilestones(320, 190, 120),
+    guide: '예열 209°C 전후, 투입 198°C 전후, 1차 크랙은 7분 40초 안팎, 총 10분 20초 전후가 무난합니다. 코코아, 허브, 너트 계열의 안정적인 바디를 살리기 좋습니다.',
+    sourceLabel: '커피시스 사업자 목록',
+    sourceUrl: COFFEESYS_BUSINESS_LIST_URL,
+  },
+  {
+    id: 'yemen-mocha-mattari',
+    originCountry: '예멘',
+    originRegion: '모카 마타리',
+    originGroup: '아시아',
+    name: '모카 마타리',
+    variety: '아라비카',
+    roastLevel: 'light',
+    process: '내추럴',
+    chargeTemp: 194,
+    preheatTemp: 204,
+    preheatSec: 600,
+    milestones: roastMilestones(285, 190, 110),
+    guide: '예열 204°C 전후, 투입 194°C 전후, 1차 크랙은 7분 10초 안팎, 총 9분 45초 전후가 출발점입니다. 다크초콜릿, 건과일, 스파이스의 고전적인 향을 살려 보세요.',
+    sourceLabel: '커피시스 사업자 목록',
+    sourceUrl: COFFEESYS_BUSINESS_LIST_URL,
+  },
+  {
+    id: 'india-kaipiroyal-aa',
+    originCountry: '인도',
+    originRegion: '카피로얄',
+    originGroup: '아시아',
+    name: '카피로얄 AA',
+    variety: '아라비카',
+    roastLevel: 'medium',
+    process: '워시드',
+    chargeTemp: 199,
+    preheatTemp: 210,
+    preheatSec: 630,
+    milestones: roastMilestones(320, 190, 120),
+    guide: '예열 210°C 전후, 투입 199°C 전후, 1차 크랙은 7분 45초 안팎, 총 10분 30초 전후가 무난합니다. 코코아, 스파이스, 견과류의 묵직한 밸런스를 잡기 좋습니다.',
+    sourceLabel: '커피시스 사업자 목록',
+    sourceUrl: COFFEESYS_BUSINESS_LIST_URL,
+  },
+  {
+    id: 'vietnam-robusta-scr18',
+    originCountry: '베트남',
+    originRegion: '로부스타',
+    originGroup: '아시아',
+    name: '로부스타 Scr-18',
+    variety: '로부스타',
+    roastLevel: 'dark',
+    process: '내추럴',
+    chargeTemp: 205,
+    preheatTemp: 215,
+    preheatSec: 690,
+    milestones: roastMilestones(345, 230, 125),
+    guide: '예열 215°C 전후, 투입 205°C 전후, 1차 크랙은 8분 30초 안팎, 총 11분 40초 전후가 출발점입니다. 쌉쌀함, 초콜릿, 강한 바디를 살리는 쪽이 잘 맞습니다.',
+    sourceLabel: '커피시스 사업자 목록',
+    sourceUrl: COFFEESYS_BUSINESS_LIST_URL,
+  },
+  {
+    id: 'jamaica-blue-mountain-no1',
+    originCountry: '자메이카',
+    originRegion: '블루마운틴',
+    originGroup: '중남미',
+    name: '블루마운틴 NO.1',
+    variety: '티피카',
+    roastLevel: 'light',
+    process: '워시드',
+    chargeTemp: 193,
+    preheatTemp: 203,
+    preheatSec: 570,
+    milestones: roastMilestones(285, 180, 90),
+    guide: '예열 203°C 전후, 투입 193°C 전후, 1차 크랙은 7분 안팎, 총 9분 15초 전후가 무난합니다. 부드러운 단맛, 견과, 코코아의 정갈한 맛을 살리기 좋습니다.',
+    sourceLabel: '커피시스 사업자 목록',
+    sourceUrl: COFFEESYS_BUSINESS_LIST_URL,
+  },
 ];
 const ROAST_POPULARITY = Object.fromEntries(
   ROAST_PRESETS.map((preset, idx) => [preset.id, ROAST_PRESETS.length - idx])
@@ -2621,7 +2866,7 @@ function roastSortScore(preset) {
   return ROAST_POPULARITY[preset.id] || 0;
 }
 function loadRoastFilterState() {
-  const fallback = { originGroup: 'all', level: 'all', process: 'all', sort: 'popular' };
+  const fallback = { originGroup: 'all', level: 'all', process: 'all', sort: 'popular', query: '' };
   try {
     const raw = localStorage.getItem(ROAST_FILTER_STORAGE_KEY);
     if (!raw) return fallback;
@@ -2632,12 +2877,13 @@ function loadRoastFilterState() {
 function normalizeRoastFilterState(value) {
   const levelList = new Set(['all', 'light', 'medium', 'dark']);
   const originList = new Set(['all', ...ROAST_PRESETS.map(p => p.originGroup)]);
-  const processList = new Set(['all', ...ROAST_PRESETS.map(p => p.process)]);
+  const processList = new Set(['all', '내추럴', '워시드']);
   const level = value && levelList.has(value.level) ? value.level : 'all';
   const originGroup = value && originList.has(value.originGroup) ? value.originGroup : 'all';
   const process = value && processList.has(value.process) ? value.process : 'all';
   const sort = value && ['popular', 'alpha'].includes(value.sort) ? value.sort : 'popular';
-  return { originGroup, level, process, sort };
+  const query = value && typeof value.query === 'string' ? value.query.slice(0, 48) : '';
+  return { originGroup, level, process, sort, query };
 }
 function saveRoastFilterState() {
   try {
@@ -2645,10 +2891,22 @@ function saveRoastFilterState() {
   } catch(e) {}
 }
 function filteredRoastPresets() {
+  const query = (roastFilterState.query || '').trim().toLowerCase();
   return ROAST_PRESETS.filter(preset => {
     if (roastFilterState.level !== 'all' && preset.roastLevel !== roastFilterState.level) return false;
     if (roastFilterState.originGroup !== 'all' && preset.originGroup !== roastFilterState.originGroup) return false;
     if (roastFilterState.process !== 'all' && preset.process !== roastFilterState.process) return false;
+    if (query) {
+      const haystack = [
+        preset.name,
+        preset.originCountry,
+        preset.originRegion,
+        preset.variety,
+        preset.process,
+        preset.guide,
+      ].join(' ').toLowerCase();
+      if (!haystack.includes(query)) return false;
+    }
     return true;
   }).sort((a, b) => {
     if (roastFilterState.sort === 'alpha') {
@@ -3643,7 +3901,7 @@ function renderRoastFilterControls() {
     { id: 'popular', label: '추천순' },
     { id: 'alpha', label: '가나다순' },
   ];
-  const processOptions = ['all', ...new Set(ROAST_PRESETS.map(p => p.process))];
+  const processOptions = ['all', '내추럴', '워시드'];
 
   kindWrap.innerHTML = kindOptions.map(opt =>
     `<button class="preset-chip ${roastFilterState.level === opt.id ? 'active' : ''}" type="button" onclick="setRoastFilter('level', '${opt.id}')">${htmlEscape(opt.label)}</button>`
@@ -3656,7 +3914,7 @@ function renderRoastFilterControls() {
 
   sortWrap.innerHTML = sortOptions.map(opt =>
     `<button class="preset-chip ${roastFilterState.sort === opt.id ? 'active' : ''}" type="button" onclick="setRoastFilter('sort', '${opt.id}')">${htmlEscape(opt.label)}</button>`
-  ).join('');
+  ).join('') + `<input class="preset-search" type="text" inputmode="search" spellcheck="false" autocomplete="off" placeholder="검색" value="${htmlEscape(roastFilterState.query || '')}" oninput="setRoastFilter('query', this.value)" aria-label="텍스트 검색 필터">`;
 
   stateWrap.innerHTML = processOptions.map(process => {
     const label = process === 'all' ? '전체' : process;
@@ -3752,10 +4010,14 @@ function setRoastFilter(part, value) {
   roastFilterState = normalizeRoastFilterState({ ...roastFilterState, [part]: value });
   saveRoastFilterState();
   roastListScrollMode = 'filter';
+  if (part === 'query') {
+    renderRoastList();
+    return;
+  }
   renderRoastBrowser();
 }
 function resetRoastFilters() {
-  roastFilterState = { originGroup: 'all', level: 'all', process: 'all', sort: 'popular' };
+  roastFilterState = { originGroup: 'all', level: 'all', process: 'all', sort: 'popular', query: '' };
   saveRoastFilterState();
   roastListScrollMode = 'filter';
   renderRoastBrowser();
